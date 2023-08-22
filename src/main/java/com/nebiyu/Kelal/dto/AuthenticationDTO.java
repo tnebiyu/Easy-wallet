@@ -5,9 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-public class UserDTO {
-    private String firstName;
-    private String lastName;
+public class AuthenticationDTO {
+
     private String email;
     private String password;
 }
