@@ -1,15 +1,11 @@
 package com.nebiyu.Kelal.services.util;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Component;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;
 
-@Component
 public class JwtTokenProvider {
     private final SecretKey secretKey;
     private static final String JWT_SECRET = "addkBBCDKe12312388u452345asdkfpwqpohadejBCidKlmppwernkeJJSc991l";

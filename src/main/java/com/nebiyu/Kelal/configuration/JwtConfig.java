@@ -2,13 +2,13 @@ package com.nebiyu.Kelal.configuration;
 
 import com.nebiyu.Kelal.services.util.JwtTokenProvider;
 import io.jsonwebtoken.security.Keys;
-import lombok.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.SecretKey;
-
+@Configuration
 public class JwtConfig {
-    private String jwtSecret;
+    private String jwtSecret = "addkBBCDKe12312388u452345asdkfpwqpohadejBCidKlmppwernkeJJSc991l"; // Set your secret key here
 
     @Bean
     public SecretKey secretKey() {
