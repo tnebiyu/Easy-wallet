@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,8 +27,15 @@ public class User implements UserDetails {
     private String lastName;
     private String email;
     private String password;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal balance;
     @Enumerated(EnumType.STRING )
     private Role role;
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<TransactionModel> sentTransactions;
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    private List<TransactionModel> receivedTransactions;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -44,6 +52,9 @@ public class User implements UserDetails {
         return firstName;
     }
 
+    public BigDecimal getBalance() {
+    return balance;
+    }
     @Override
     public boolean isAccountNonExpired() {
         return true;

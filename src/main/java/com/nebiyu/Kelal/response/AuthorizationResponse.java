@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.dto;
+package com.nebiyu.Kelal.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthenticationResponse {
+public class AuthorizationResponse {
     private Data data;
     private boolean error;
     private String error_msg;
@@ -32,6 +34,8 @@ public class AuthenticationResponse {
         private String access_token;
         private String email;
         private Long user_id;
+        private String password;
+        private BigDecimal balance;
     }
 }
 

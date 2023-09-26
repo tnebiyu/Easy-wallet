@@ -1,6 +1,6 @@
 package com.nebiyu.Kelal.exception;
 
-import com.nebiyu.Kelal.dto.AuthenticationResponse;
+import com.nebiyu.Kelal.response.AuthorizationResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -11,9 +11,9 @@ import org.springframework.http.ResponseEntity;
 public class RegistrationExceptionHandler {
     @ExceptionHandler(RegistrationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<AuthenticationResponse> handleRegistrationException(RegistrationException ex) {
+    public ResponseEntity<AuthorizationResponse> handleRegistrationException(RegistrationException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(AuthenticationResponse.builder()
+                .body(AuthorizationResponse.builder()
                         .error(true)
                         .error_msg(ex.getMessage())
                         .build());
