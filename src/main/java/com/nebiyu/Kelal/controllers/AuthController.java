@@ -14,14 +14,29 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController{
     private final AuthenticationService service;
-    @PostMapping("/register")
-    public ResponseEntity<ResponseEntity<AuthorizationResponse>> register(@RequestBody RegisterRequest request){
-return ResponseEntity.ok(service.register(request));
 
+    @PostMapping("/register")
+    public ResponseEntity<AuthorizationResponse> register(@RequestBody RegisterRequest request) {
+        AuthorizationResponse response = service.register(request);
+
+        if (response.isError()) {
+            return ResponseEntity.badRequest()
+                    .body(response);
+        } else {
+            return ResponseEntity.ok()
+                    .body(response);
+        }
     }
+
     @PostMapping("/authenticate")
-    public ResponseEntity<ResponseEntity<AuthenticationResponse>> authenticate(@RequestBody AuthenticationRequest request){
-return ResponseEntity.ok(service.authenticate(request));
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
+      AuthenticationResponse response = service.authenticate(request);
+      if (response.isError()){
+          return ResponseEntity.badRequest().body(response);
+      }
+      else{
+          return ResponseEntity.ok().body(response);
+      }
     }
 
 

@@ -32,11 +32,8 @@ public class TransferResponse {
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class UserData {
-        private String access_token;
         private String senderEmail;
         private String receiverEmail;
-        private Long user_id;
-        private String password;
         private BigDecimal balance;
     }
 

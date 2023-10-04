@@ -5,9 +5,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class TransferRequest {
-    private Long senderId;
-    private String email;
-    private Long receiverId;
+public class TransferRequestWithEmail {
+
+    private String senderEmail;
+    private String receiverEmail;
     private BigDecimal amount;
 }
