@@ -1,12 +1,14 @@
 package com.nebiyu.Kelal.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.nebiyu.Kelal.model.TransactionModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -31,11 +33,14 @@ public class AuthorizationResponse {
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class UserData {
-        private String access_token;
         private String email;
         private Long user_id;
+        private String firstName;
+        private String lastName;
         private String password;
         private BigDecimal balance;
+        private List<TransactionModel> sentTransaction;
+        private List<TransactionModel> receivedTransaction;
     }
 }
 

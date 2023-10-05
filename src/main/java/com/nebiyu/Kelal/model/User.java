@@ -34,6 +34,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
     private List<TransactionModel> sentTransactions;
 
+
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<TransactionModel> receivedTransactions;
 

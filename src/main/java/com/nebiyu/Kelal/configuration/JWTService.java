@@ -1,6 +1,8 @@
 package com.nebiyu.Kelal.configuration;
 
+import com.nebiyu.Kelal.model.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -25,14 +27,16 @@ public class JWTService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(User user) {
+        return generateToken(new HashMap<>(), user);
 
     }
+//
 
-    public String generateToken(Map<String, Objects> extractClaims, UserDetails userDetails
+    public String generateToken(Map<String, Object> extractClaims, User user
     ) {
-        return Jwts.builder().setClaims(extractClaims).setSubject(userDetails.getUsername()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
+        extractClaims.put("email", user.getEmail());
+        return Jwts.builder().setClaims(extractClaims).setSubject(user.getEmail()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
                 getSignInKey(), SignatureAlgorithm.HS256
         ).compact();
     }
@@ -70,8 +74,31 @@ public class JWTService {
     public Claims verify(String authentication) throws IOException {
         try {
             Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(authentication).getBody();
-            System.out.println(claims.get("email"));
+          //  System.out.println(claims.get("email") + " " + claims.get("password"));
 return claims;
+        } catch (Exception e) {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+    public Claims verify2(String authentication) throws ExpiredJwtException, AccessDeniedException {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                    .build()
+                    .parseClaimsJws(authentication)
+                    .getBody();
+
+
+            Date expirationDate = claims.getExpiration();
+            Date now = new Date();
+
+            if (expirationDate != null && expirationDate.before(now)) {
+                throw new ExpiredJwtException(null, claims, "Token has expired");
+            }
+
+            return claims;
+        } catch (ExpiredJwtException e) {
+            throw e; // Rethrow the exception to handle token expiration separately
         } catch (Exception e) {
             throw new AccessDeniedException("Access denied");
         }

@@ -8,13 +8,13 @@ import com.nebiyu.Kelal.response.AuthorizationResponse;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -52,28 +52,23 @@ public class AuthenticationService {
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.USER)
                     .balance(BigDecimal.ZERO)
+                    .sentTransactions(new ArrayList<>())
+                    .receivedTransactions(new ArrayList<>())
                     .build();
             userRepository.save(user);
-//            var jwtToken = jwtService.generateToken(user);
-// no need to generate token when user is registering
-//            if (!jwtToken.isEmpty()) {
-//                return AuthorizationResponse.builder()
-//                        .error(false)
-//                        .error_msg("")
-//                        .data(AuthorizationResponse.Data.builder()
-//                                .user_data(AuthorizationResponse.UserData.builder()
-//                                        .access_token(jwtToken)
-//                                        .email(user.getEmail())
-//                                        .user_id(user.getId())
-//                                        .build())
-//                                .build())
-//                        .build();
-//            }
+            var responseBuilder = AuthorizationResponse.builder().error(false)
+                    .error_msg("");
+          var userData = AuthorizationResponse.UserData.builder().firstName(request.getFirstname())
+                  .lastName(request.getLastname()).email(request.getEmail())
+                  .sentTransaction(new ArrayList<>()).receivedTransaction(
+                          new ArrayList<>()).balance(BigDecimal.ZERO)
+                  .build();
+          var data = AuthorizationResponse.Data.builder()
+                  .user_data(userData).build();
+          responseBuilder.data(data).build();
 
-            return AuthorizationResponse.builder()
-                    .error(true)
-                    .error_msg("Unknown error occurred during registration")
-                    .build();
+
+            return responseBuilder.build();
         } catch (Exception e) {
             return AuthorizationResponse.builder()
                     .error(true)
@@ -107,15 +102,10 @@ public class AuthenticationService {
                     .access_token(jwtToken)
                     .email(user.getEmail())
                     .balance(user.getBalance()).build();
-            Claims claims = jwtService.verify(jwtToken);
-            String email =(String) claims.get("email");
-            String password = (String) claims.get("password");
-            System.out.println("THIS IS THE PAYLOAD" + email + ": " + password);
-
             var data = AuthenticationResponse.Data.builder()
                     .user_data(userData).build();
             responseBuilder.data(data).build();
-            return AuthenticationResponse.builder().data(data).error_msg("").error(false).build();
+            return responseBuilder.build();
         }
         catch (Exception e){
             return AuthenticationResponse.builder().error(true).error_msg("Authentication Failed" + e.getMessage()).build();

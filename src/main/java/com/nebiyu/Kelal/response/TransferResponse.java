@@ -34,7 +34,7 @@ public class TransferResponse {
     public static class UserData {
         private String senderEmail;
         private String receiverEmail;
-        private BigDecimal balance;
+        private BigDecimal newBalance;
     }
 
 }

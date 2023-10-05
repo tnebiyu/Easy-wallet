@@ -12,14 +12,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TransactionService {
@@ -33,34 +31,43 @@ public class TransactionService {
     @Autowired
     private TransferJwtTokenRequest tokenRequest;
     @Transactional
+    @Async
     public TransferResponse transferMoneyByEmail(TransferRequestWithEmail request, String jwtToken) {
-        TransferResponse response = new TransferResponse();
-        try {
-             boolean isAuthenticated = jwtService.isTokenExpired(jwtToken);
 
-            if (!isAuthenticated) {
-                response.setError(true);
-                response.setError_msg("User is not authenticated or token is expired");
-                return response;
+        try {
+
+            Claims claims = jwtService.verify(jwtToken);
+            String senderEmail =(String) claims.get("email");
+
+            if (!Objects.equals(senderEmail, request.getSenderEmail())) {
+
+                return TransferResponse.builder().error(true).error_msg("User is not authenticated or token is expired").build();
             }
 
-         String userName = jwtService.extractUserName(jwtToken);
-            Optional<User> senderOptional = userRepository.findByEmail(userName);
+
+            Optional<User> senderOptional = userRepository.findByEmail(senderEmail);
             Optional<User> receiverOptional = userRepository.findByEmail(request.getReceiverEmail());
             if (senderOptional.isEmpty() || receiverOptional.isEmpty()) {
-                response.setError(true);
-                response.setError_msg("Sender or receiver is not found");
-                return response;
+
+                return TransferResponse.builder().error(true).error_msg("Sender or receiver is not found").build();
             }
+            if (senderOptional.equals(receiverOptional)){
+
+                return TransferResponse.builder().error(true).error_msg("Sender and Receiver are same").build();
+
+            }
+
 
 
             User sender = senderOptional.get();
             User receiver = receiverOptional.get();
             if (sender.getBalance().compareTo(request.getAmount()) <=0) {
 //
-                response.setError(true);
-                response.setError_msg("insufficient amount please recharge your wallet");
+               return TransferResponse.builder().error(true).error_msg("no balance please recharge your account").build();
             }
+            sender.setBalance(sender.getBalance().subtract(request.getAmount()));
+            receiver.setBalance(receiver.getBalance().add(request.getAmount()));
+
             userRepository.save(sender);
             userRepository.save(receiver);
 
@@ -72,25 +79,35 @@ public class TransactionService {
             transaction.setAmount(request.getAmount());
             transaction.setTimestamp(new Date());
             transactionRepository.save(transaction);
+
+            List<TransactionModel> senderTransaction =sender.getSentTransactions();
+            if (senderTransaction == null){
+                senderTransaction = new ArrayList<>();
+            }
+            senderTransaction.add(transaction);
+            sender.setSentTransactions(senderTransaction);
+//            List<TransactionModel> receivedTransaction = receiver.getReceivedTransactions();
+//            if (receivedTransaction == null){
+//                receivedTransaction = new ArrayList<>();
+//            }
+//            receivedTransaction.add(transaction);
+//            receiver.setSentTransactions(senderTransaction);
+
             TransferResponse.UserData userData = TransferResponse.UserData.builder()
                     .senderEmail(request.getSenderEmail())
                     .receiverEmail(request.getReceiverEmail())
-                    .balance(sender.getBalance())
+                    .newBalance(sender.getBalance())
                     .build();
 
             TransferResponse.Data data = TransferResponse.Data.builder()
                     .user_data(userData)
                     .build();
 
-            response.setData(data);
-            response.setError(false);
-            response.setError_msg("");
 
-            return response;
+
+            return TransferResponse.builder().error_msg("").error(false).data(data).build();
         } catch (Exception e) {
-            response.setError(true);
-            response.setError_msg("Money transfer failed: " + e.getMessage());
-            return response;
+            return TransferResponse.builder().error(true).error_msg("Money transfer failed: " + e.getMessage()).build();
         }
     }
 //    public boolean verifyTokenWithPassword(String jwtToken, String password) {
