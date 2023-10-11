@@ -7,15 +7,16 @@ import com.nebiyu.Kelal.services.auth.AuthenticationService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("${AUTH_API_CALL}")
 @RequiredArgsConstructor
 public class AuthController{
     private final AuthenticationService service;
 
-    @PostMapping("/register")
+    @PostMapping("${REGISTER_API_CALL}")
     public ResponseEntity<AuthorizationResponse> register(@RequestBody RegisterRequest request) {
         AuthorizationResponse response = service.register(request);
 
@@ -28,7 +29,7 @@ public class AuthController{
         }
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("${LOGIN_API_CALL}")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
       AuthenticationResponse response = service.authenticate(request);
       if (response.isError()){

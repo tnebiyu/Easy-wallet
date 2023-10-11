@@ -9,6 +9,7 @@ import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +26,7 @@ public class AuthenticationService {
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
 
-
+@Async
     public AuthorizationResponse register(RegisterRequest request) {
         try {
             Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
@@ -76,6 +77,7 @@ public class AuthenticationService {
                     .build();
         }
     }
+    @Async
     public AuthenticationResponse authenticate(AuthenticationRequest request){
         try {
             Optional<User> userExist = userRepository.findByEmail(request.getEmail());

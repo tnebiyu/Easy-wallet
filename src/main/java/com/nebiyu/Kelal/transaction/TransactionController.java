@@ -6,6 +6,7 @@ import com.nebiyu.Kelal.request.TransferRequestWithEmail;
 import com.nebiyu.Kelal.response.TransferResponse;
 import com.nebiyu.Kelal.services.auth.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/v1/transactions")
+
+@RequestMapping("${TRANSACTION_API_CALL}")
 public class TransactionController {
     @Autowired
     private TransactionService transactionService;
