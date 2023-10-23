@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.services.auth;
+package com.nebiyu.Kelal.services;
 
 import com.nebiyu.Kelal.configuration.JWTService;
 import com.nebiyu.Kelal.request.AuthenticationRequest;
@@ -53,16 +53,14 @@ public class AuthenticationService {
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.USER)
                     .balance(BigDecimal.ZERO)
-                    .sentTransactions(new ArrayList<>())
-                    .receivedTransactions(new ArrayList<>())
+
                     .build();
             userRepository.save(user);
             var responseBuilder = AuthorizationResponse.builder().error(false)
                     .error_msg("");
           var userData = AuthorizationResponse.UserData.builder().firstName(request.getFirstname())
                   .lastName(request.getLastname()).email(request.getEmail())
-                  .sentTransaction(new ArrayList<>()).receivedTransaction(
-                          new ArrayList<>()).balance(BigDecimal.ZERO)
+                .balance(BigDecimal.ZERO)
                   .build();
           var data = AuthorizationResponse.Data.builder()
                   .user_data(userData).build();
@@ -78,16 +76,16 @@ public class AuthenticationService {
         }
     }
     @Async
-    public AuthenticationResponse authenticate(AuthenticationRequest request){
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         try {
             Optional<User> userExist = userRepository.findByEmail(request.getEmail());
+
+
             if (userExist.isEmpty()) {
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("user is not registered, please register").build();
             }
             User user = userExist.get();
-
-
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
             }
@@ -99,14 +97,19 @@ public class AuthenticationService {
             var responseBuilder = AuthenticationResponse.builder()
                     .error(false)
                     .error_msg("");
+
+
             var userData = AuthenticationResponse.UserData.builder()
                     .user_id(user.getId())
                     .access_token(jwtToken)
                     .email(user.getEmail())
-                    .balance(user.getBalance()).build();
-            var data = AuthenticationResponse.Data.builder()
+                    .balance(user.getBalance())
+                   .build();
+                       var data = AuthenticationResponse.Data.builder()
                     .user_data(userData).build();
             responseBuilder.data(data).build();
+
+
             return responseBuilder.build();
         }
         catch (Exception e){

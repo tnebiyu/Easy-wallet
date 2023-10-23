@@ -1,12 +1,15 @@
 package com.nebiyu.Kelal.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import com.nebiyu.Kelal.model.TransactionModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -36,6 +39,8 @@ public class AuthenticationResponse {
         private Long user_id;
         private String password;
         private BigDecimal balance;
+        private List<TransactionModel> sentTransaction;
+        private List<TransactionModel> receivedTransaction;
     }
 
 }

@@ -1,26 +1,29 @@
 package com.nebiyu.Kelal.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.nebiyu.Kelal.model.User;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthorizationResponse {
+public class TransactionResponseId {
     private Data data;
     private boolean error;
     private String error_msg;
 
 
-@lombok.Data
+    @lombok.Data
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
 
@@ -28,17 +31,23 @@ public class AuthorizationResponse {
         private UserData user_data;
     }
 
-@lombok.Data
+    @lombok.Data
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class UserData {
-        private String email;
-        private Long user_id;
-        private String firstName;
-        private String lastName;
-        private String password;
-        private BigDecimal balance;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
+        @ManyToOne
+        private Long senderId;
+
+        @ManyToOne
+        private Long receiverId;
+
+        private BigDecimal amount;
+        private Date timestamp;
     }
 }
+
 

@@ -1,15 +1,12 @@
 package com.nebiyu.Kelal.model;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
@@ -22,8 +19,9 @@ import java.util.List;
 @AllArgsConstructor
 public class User implements UserDetails {
     @Id
-    @GeneratedValue
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
     private String firstName;
     private String lastName;
 
@@ -33,12 +31,6 @@ public class User implements UserDetails {
     private BigDecimal balance;
     @Enumerated(EnumType.STRING )
     private Role role;
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
-    private List<TransactionModel> sentTransactions;
-
-
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
-    private List<TransactionModel> receivedTransactions;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

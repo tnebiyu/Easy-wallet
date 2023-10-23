@@ -3,11 +3,10 @@ import com.nebiyu.Kelal.request.AuthenticationRequest;
 import com.nebiyu.Kelal.response.AuthenticationResponse;
 import com.nebiyu.Kelal.response.AuthorizationResponse;
 import com.nebiyu.Kelal.request.RegisterRequest;
-import com.nebiyu.Kelal.services.auth.AuthenticationService;
+import com.nebiyu.Kelal.services.AuthenticationService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +27,7 @@ public class AuthController{
                     .body(response);
         }
     }
+
 
     @PostMapping("${LOGIN_API_CALL}")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
