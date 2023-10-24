@@ -2,17 +2,20 @@ package com.nebiyu.Kelal.controllers;
 import com.nebiyu.Kelal.repositories.UserRepository;
 import com.nebiyu.Kelal.request.TransferRequestWithEmail;
 import com.nebiyu.Kelal.request.TransferRequestWithId;
+import com.nebiyu.Kelal.response.RecentTransactionResponse;
+import com.nebiyu.Kelal.response.TransactionHistoryResponse;
 import com.nebiyu.Kelal.response.TransactionResponseId;
 import com.nebiyu.Kelal.response.TransferResponse;
 import com.nebiyu.Kelal.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 
-@RequestMapping("${TRANSACTION_API_CALL}")
+@RequestMapping("${TRANSACTION_CLASS_REQUEST_MAPPING}")
 public class TransactionController {
 
 
@@ -20,10 +23,12 @@ public class TransactionController {
     private TransactionService service;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    TransactionService transactionService;
 
 
 
-    @PostMapping("${TRANSACTION_API}")
+    @PostMapping("${TRANSFER_EMAIL}")
     public ResponseEntity<TransferResponse> transferMoney(
             @RequestHeader("Authorization") String token,
         @RequestBody TransferRequestWithEmail request
@@ -42,7 +47,7 @@ return ResponseEntity.ok().body(response);
 
 
     }
-    @PostMapping("/transactionWithId")
+    @PostMapping("${TRANSFER_WITH_ID}")
     public ResponseEntity<TransactionResponseId> tranferWithId(@RequestBody TransferRequestWithId request){
         TransactionResponseId response = service.transferMoneyById(request);
         if (response.isError()){
@@ -50,6 +55,22 @@ return ResponseEntity.ok().body(response);
         }
         return ResponseEntity.ok().body(response);
 
+    }
+    @PostMapping(value = "${GET_TRANSACTION_HISTORY}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public  ResponseEntity<TransactionHistoryResponse> getTransactionHistoryPerUserId(@RequestParam Long id){
+        TransactionHistoryResponse response = transactionService.getTransactionHistoryWithId(id);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
+    }
+    @PostMapping(value = "${RECENT_TRANSACTION}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RecentTransactionResponse> getRecentTransaction(@RequestParam Long id){
+        RecentTransactionResponse response = transactionService.getRecentTransaction(id);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
     }
 
 

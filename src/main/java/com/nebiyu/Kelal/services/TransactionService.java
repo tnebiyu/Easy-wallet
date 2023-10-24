@@ -8,6 +8,7 @@ import com.nebiyu.Kelal.repositories.TransactionRepository;
 import com.nebiyu.Kelal.repositories.UserRepository;
 import com.nebiyu.Kelal.request.TransferRequestWithEmail;
 import com.nebiyu.Kelal.request.TransferRequestWithId;
+import com.nebiyu.Kelal.response.RecentTransactionResponse;
 import com.nebiyu.Kelal.response.TransactionHistoryResponse;
 import com.nebiyu.Kelal.response.TransactionResponseId;
 import com.nebiyu.Kelal.response.TransferResponse;
@@ -145,13 +146,14 @@ transactionRepository.save(transaction);
         List<TransactionHistoryResponse.SentTransaction> sentTransactionList = new ArrayList<>();
         List<TransactionHistoryResponse.ReceivedTransaction> receivedTransactionList = new ArrayList<>();
         try{
-            List<TransactionModel> getUser = transactionRepository.findAllTransactionsForUser(id);
-            if (getUser.isEmpty()){
+            List<TransactionModel> userTransactions = transactionRepository.findAllTransactionsForUser(id);
+            if (userTransactions.isEmpty()){
                 return TransactionHistoryResponse.builder().error(true).error_msg("user not found").build();
             }
+            userTransactions.sort(Comparator.comparing(TransactionModel::getTimestamp).reversed());
 
 
-            for (TransactionModel transaction : getUser){
+            for (TransactionModel transaction : userTransactions){
 
 
                 if (Objects.equals(transaction.getSender().getId(), id)) {
@@ -179,23 +181,70 @@ transactionRepository.save(transaction);
             var data = TransactionHistoryResponse.Data.builder().userData(userData).build();
 
 
-
-            var response = TransactionHistoryResponse.builder()
+            return TransactionHistoryResponse.builder()
                     .data(data)
                     .error(false)
                     .error_msg("")
                     .build();
-
-            return response;
 
         }
         catch (Exception e) {
             return TransactionHistoryResponse.builder().error(true).error_msg(e.toString()).build();
         }
     }
-//    public DemoTransaction getDemoTransaction(Long id){
-//
-//    }
+public RecentTransactionResponse getRecentTransaction(Long id){
+    List<RecentTransactionResponse.SentTransaction> sentTransactionList = new ArrayList<>();
+    List<RecentTransactionResponse.ReceivedTransaction> receivedTransactionList = new ArrayList<>();
+
+try{
+    List<TransactionModel> userTransactions = transactionRepository.findAllTransactionsForUser(id);
+    if (userTransactions.isEmpty()){
+        return RecentTransactionResponse.builder().error(true).error_msg("user not found").build();
+    }
+    userTransactions.sort(Comparator.comparing(TransactionModel::getTimestamp).reversed());
+    int transactionLimit = Math.min(userTransactions.size(), 6);
+
+    for (int i=0; i<transactionLimit; i++) {
+
+      TransactionModel transaction = userTransactions.get(i);
+        if (Objects.equals(transaction.getSender().getId(), id)) {
+
+            var senderData = RecentTransactionResponse.SentTransaction.builder()
+                    .balance(transaction.getAmount())
+                    .receiver(transaction.getReceiver().getEmail())
+                    .timestamp(transaction.getTimestamp())
+                    .build();
+            sentTransactionList.add(senderData);
+        } else if (Objects.equals(transaction.getReceiver().getId(), id)) {
+
+            var receiverData = RecentTransactionResponse.ReceivedTransaction.builder()
+                    .balance(transaction.getAmount())
+                    .sender(transaction.getSender().getEmail())
+                    .timestamp(transaction.getTimestamp())
+                    .build();
+            receivedTransactionList.add(receiverData);
+        }
+    }
+
+
+    var userData = RecentTransactionResponse.UserData.builder().sent(sentTransactionList)
+            .received(receivedTransactionList).build();
+    var data = RecentTransactionResponse.Data.builder().userData(userData).build();
+
+
+    return RecentTransactionResponse.builder()
+            .data(data)
+            .error(false)
+            .error_msg("")
+            .build();
+
+}
+catch (Exception e){
+    return RecentTransactionResponse.builder().error(true).error_msg(e.toString()).build();
+
+}
+
+}
 
 
 }

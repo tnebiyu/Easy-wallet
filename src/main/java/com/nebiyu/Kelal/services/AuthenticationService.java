@@ -15,7 +15,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -53,7 +52,6 @@ public class AuthenticationService {
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.USER)
                     .balance(BigDecimal.ZERO)
-
                     .build();
             userRepository.save(user);
             var responseBuilder = AuthorizationResponse.builder().error(false)
@@ -62,12 +60,13 @@ public class AuthenticationService {
                   .lastName(request.getLastname()).email(request.getEmail())
                 .balance(BigDecimal.ZERO)
                   .build();
+
           var data = AuthorizationResponse.Data.builder()
                   .user_data(userData).build();
           responseBuilder.data(data).build();
 
 
-            return responseBuilder.build();
+            return AuthorizationResponse.builder().data(data).error(false).error_msg("").build();
         } catch (Exception e) {
             return AuthorizationResponse.builder()
                     .error(true)

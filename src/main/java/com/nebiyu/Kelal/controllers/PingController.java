@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class PingController {
     @Autowired
     PingService pingService;
-   @Autowired
-    TransactionService transactionService;
+
 
 
     @PostMapping("/ping")
@@ -30,14 +29,7 @@ public class PingController {
         return ResponseEntity.ok().body(response);
 
     }
-    @PostMapping(value = "/getTransaction", produces = MediaType.APPLICATION_JSON_VALUE)
-    public  ResponseEntity<TransactionHistoryResponse> getTransactionHistoryPerUserId(@RequestParam Long id){
-        TransactionHistoryResponse response = transactionService.getTransactionHistoryWithId(id);
-        if (response.isError()){
-            return ResponseEntity.badRequest().body(response);
-        }
-        return ResponseEntity.ok().body(response);
-    }
+
 
 
 

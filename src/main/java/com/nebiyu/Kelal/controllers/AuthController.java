@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("${AUTH_API_CALL}")
+@RequestMapping("${AUTH_CLASS_REQUEST_MAPPING}")
 @RequiredArgsConstructor
 public class AuthController{
     private final AuthenticationService service;
