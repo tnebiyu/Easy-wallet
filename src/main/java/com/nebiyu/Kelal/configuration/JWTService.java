@@ -1,6 +1,8 @@
 package com.nebiyu.Kelal.configuration;
 
+import com.nebiyu.Kelal.admin.model.Admin;
 import com.nebiyu.Kelal.model.User;
+import com.nebiyu.Kelal.super_admin.model.SuperAdminModel;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -17,7 +19,6 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 @Service
@@ -34,9 +35,31 @@ public class JWTService {
         return generateToken(new HashMap<>(), user);
 
     }
+    public String generateToken(Admin admin) {
+        return generateToken(new HashMap<>(), admin);
+
+    }
+    public String generateToken(SuperAdminModel superAdmin){
+        return generateToken(new HashMap<>(), superAdmin);
+
+    }
 //
 
     public String generateToken(Map<String, Object> extractClaims, User user
+    ) {
+        extractClaims.put("email", user.getEmail());
+        return Jwts.builder().setClaims(extractClaims).setSubject(user.getEmail()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
+                getSignInKey(), SignatureAlgorithm.HS256
+        ).compact();
+    }
+    public String generateToken(Map<String, Object> extractClaims, Admin admin
+    ) {
+        extractClaims.put("email", admin.getEmail());
+        return Jwts.builder().setClaims(extractClaims).setSubject(admin.getEmail()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
+                getSignInKey(), SignatureAlgorithm.HS256
+        ).compact();
+    }
+    public String generateToken(Map<String, Object> extractClaims, SuperAdminModel user
     ) {
         extractClaims.put("email", user.getEmail());
         return Jwts.builder().setClaims(extractClaims).setSubject(user.getEmail()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
