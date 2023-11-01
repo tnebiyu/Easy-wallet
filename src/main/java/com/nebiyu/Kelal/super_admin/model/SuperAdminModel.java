@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.super_admin;
+package com.nebiyu.Kelal.super_admin.model;
 
 import com.nebiyu.Kelal.model.Role;
 import jakarta.persistence.*;

@@ -13,6 +13,9 @@ import com.nebiyu.Kelal.response.TransactionHistoryResponse;
 import com.nebiyu.Kelal.response.TransactionResponseId;
 import com.nebiyu.Kelal.response.TransferResponse;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -37,7 +40,7 @@ public class TransactionService {
             String senderEmail =(String) claims.get("email");
 
 
-            if (!Objects.equals(senderEmail, request.getSenderEmail())) {
+            if (!Objects.equals(senderEmail, request.getSenderEmail()) && isTokenExpired(jwtToken)) {
 
                 return TransferResponse.builder().error(true).error_msg("User is not authenticated or token is expired").build();
             }
@@ -245,6 +248,21 @@ catch (Exception e){
 }
 
 }
+    public boolean isTokenExpired(String jwtToken) {
+        try {
+            Claims claims = jwtService.verify(jwtToken);
+            Date expirationDate = claims.getExpiration();
+            Date now = new Date();
+            return expirationDate != null && expirationDate.before(now);
+        }
+
+        catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            return true;
+        }
+        catch (Exception e) {
+            return true;
+        }
+    }
 
 
 }

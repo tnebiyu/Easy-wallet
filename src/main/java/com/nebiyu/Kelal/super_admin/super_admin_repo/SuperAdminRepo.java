@@ -1,6 +1,6 @@
-package com.nebiyu.Kelal.super_admin;
+package com.nebiyu.Kelal.super_admin.super_admin_repo;
 
-import com.nebiyu.Kelal.model.User;
+import com.nebiyu.Kelal.super_admin.model.SuperAdminModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

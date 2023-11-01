@@ -2,6 +2,7 @@ package com.nebiyu.Kelal.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.TransactionModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +42,16 @@ public class AuthenticationResponse {
         private BigDecimal balance;
         private List<TransactionModel> sentTransaction;
         private List<TransactionModel> receivedTransaction;
+    }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class AdminResponse {
+        private String status;
+        private String email;
+        private Long user_id;
+        private BigDecimal balance;
+        private Role role;
     }
 
 }
