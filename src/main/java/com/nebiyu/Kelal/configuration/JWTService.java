@@ -48,6 +48,7 @@ public class JWTService {
     public String generateToken(Map<String, Object> extractClaims, User user
     ) {
         extractClaims.put("email", user.getEmail());
+        extractClaims.put("id", user.getId());
         return Jwts.builder().setClaims(extractClaims).setSubject(user.getEmail()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
                 getSignInKey(), SignatureAlgorithm.HS256
         ).compact();
@@ -55,14 +56,16 @@ public class JWTService {
     public String generateToken(Map<String, Object> extractClaims, Admin admin
     ) {
         extractClaims.put("email", admin.getEmail());
+        extractClaims.put("id", admin.getId());
         return Jwts.builder().setClaims(extractClaims).setSubject(admin.getEmail()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
                 getSignInKey(), SignatureAlgorithm.HS256
         ).compact();
     }
-    public String generateToken(Map<String, Object> extractClaims, SuperAdminModel user
+    public String generateToken(Map<String, Object> extractClaims, SuperAdminModel superAdmin
     ) {
-        extractClaims.put("email", user.getEmail());
-        return Jwts.builder().setClaims(extractClaims).setSubject(user.getEmail()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
+        extractClaims.put("email", superAdmin.getEmail());
+        extractClaims.put("id", superAdmin.getId());
+        return Jwts.builder().setClaims(extractClaims).setSubject(superAdmin.getEmail()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
                 getSignInKey(), SignatureAlgorithm.HS256
         ).compact();
     }

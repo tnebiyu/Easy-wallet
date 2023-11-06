@@ -48,8 +48,8 @@ return ResponseEntity.ok().body(response);
 
     }
     @PostMapping("${TRANSFER_WITH_ID}")
-    public ResponseEntity<TransactionResponseId> tranferWithId(@RequestBody TransferRequestWithId request){
-        TransactionResponseId response = service.transferMoneyById(request);
+    public ResponseEntity<TransactionResponseId> tranferWithId(@RequestBody TransferRequestWithId request, @RequestHeader("Authorization") String token){
+        TransactionResponseId response = service.transferMoneyById(request, token);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
         }

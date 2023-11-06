@@ -104,8 +104,17 @@ transactionRepository.save(transaction);
     }
     @Transactional
     @Async
-    public TransactionResponseId transferMoneyById(TransferRequestWithId request) {
+    public TransactionResponseId transferMoneyById(TransferRequestWithId request, String jwtToken) {
         try {
+            Claims claims = jwtService.verify(jwtToken);
+            String senderId =(String) claims.get("id");
+
+
+            if (!Objects.equals(senderId, request.getSenderId()) && isTokenExpired(jwtToken)) {
+
+                return TransactionResponseId.builder().error(true).error_msg("User is not authenticated or token is expired").build();
+            }
+
             Optional<User> sender = userRepository.findById(request.getSenderId());
             Optional<User> receiver = userRepository.findById(request.getReceiverId());
               if (sender.isEmpty() || receiver.isEmpty()){

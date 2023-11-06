@@ -1,15 +1,23 @@
 package com.nebiyu.Kelal.super_admin.service;
 
 import com.nebiyu.Kelal.admin.admin_service.AdminService;
+import com.nebiyu.Kelal.admin.model.Admin;
 import com.nebiyu.Kelal.configuration.JWTService;
 import com.nebiyu.Kelal.model.Role;
+import com.nebiyu.Kelal.model.User;
+import com.nebiyu.Kelal.repositories.UserRepository;
 import com.nebiyu.Kelal.request.AuthenticationRequest;
 import com.nebiyu.Kelal.request.RegisterRequest;
+import com.nebiyu.Kelal.request.SadminCreateAdminRequest;
+import com.nebiyu.Kelal.request.TopUpRequest;
 import com.nebiyu.Kelal.response.AuthenticationResponse;
 import com.nebiyu.Kelal.response.AuthorizationResponse;
 import com.nebiyu.Kelal.super_admin.model.SuperAdminModel;
 import com.nebiyu.Kelal.super_admin.super_admin_repo.SuperAdminRepo;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -25,6 +34,7 @@ import java.util.Optional;
 public class SuperAdminAuthenticationService {
 
   private final  SuperAdminRepo superAdminRepo;
+  private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
     private final AdminService adminService;
@@ -122,30 +132,78 @@ public class SuperAdminAuthenticationService {
     }
   }
  @Async
-  public AuthenticationResponse createAdminAccount(AuthenticationRequest request, RegisterRequest adminToCreate, String jwtToken) {
+  public AuthenticationResponse createAdminAccount(SadminCreateAdminRequest request, String jwtToken) {
     try {
-      Optional<SuperAdminModel> superAdminExists = superAdminRepo.findByEmail(request.getEmail());
+      Optional<SuperAdminModel> superAdminExists = superAdminRepo.findByEmail(request.getSuperAdminEmail());
       Claims claims = jwtService.verify(jwtToken);
       String senderEmail =(String) claims.get("email");
       if (superAdminExists.isEmpty()){
         return AuthenticationResponse.builder().error(true).error_msg("super admin is not available with this account").build();
       }
       SuperAdminModel sAdmin = superAdminExists.get();
-      if (!passwordEncoder.matches(senderEmail, sAdmin.getPassword())) {
+      if (!passwordEncoder.matches(senderEmail, sAdmin.getPassword()) && isTokenExpired(jwtToken)) {
         return AuthenticationResponse.builder().error(true).error_msg("password is incorrect. Permission denied").build();
       }
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-              request.getEmail(),
-              request.getPassword()));
+              request.getSuperAdminEmail(),
+              request.getSuperAdminPassword()));
+      Admin admin = Admin.builder().email(request.getAdminEmail())
+                      .password(request.getAdminPassword())
+                              .firstName(request.getAdminFirstName())
+                                      .lastName(request.getAdminLastName())
+                                              .balance(BigDecimal.ZERO)
+              .role(Role.ADMIN)
+                                                      .build();
 
 
-      adminService.creatAdmin(adminToCreate);
+
+      adminService.createAdmin(admin);
 
 
       return AuthenticationResponse.builder().error(false).error_msg("Admin account created successfully").build();
     } catch (Exception e) {
       return AuthenticationResponse.builder().error(true).error_msg(e.getMessage()).build();
     }
+  }
+  @Async
+  public AuthenticationResponse topUpUser(TopUpRequest request, String jwtToken){
+      try{
+
+        Optional<SuperAdminModel> superAdmin = superAdminRepo.findByEmail(request.getAdminEmail());
+        Optional<User> userOptional = userRepository.findByEmail(request.getUserEmail());
+        Claims claims = jwtService.verify(jwtToken);
+        String superAdminEmail =(String) claims.get("email");
+        if (superAdmin.isEmpty()){
+          return AuthenticationResponse.builder().error(true).error_msg("account not found for super admin")
+                  .build();
+
+        }
+        if (userOptional.isEmpty()){
+          return AuthenticationResponse.builder().error(true).error_msg("account not found for a user").build();
+        }
+        SuperAdminModel sAdmin = superAdmin.get();
+        if (!passwordEncoder.matches(superAdminEmail, sAdmin.getPassword()) && isTokenExpired(jwtToken)) {
+          return AuthenticationResponse.builder().error(true).error_msg("password is incorrect. Permission is denied").build();
+        }
+        User user = userOptional.get();
+     BigDecimal newBalance =   user.getBalance().add(request.getAmount());
+
+        var topUpData = AuthenticationResponse.TopUpResponse.builder().superAdminEmail(
+                sAdmin.getEmail()
+        ).userEmail(user.getEmail())
+                .newBalance(newBalance)
+                .status("success").build();
+        var Data = AuthenticationResponse.Data.builder().topUpResponse(topUpData)
+                .build();
+        return AuthenticationResponse.builder().error(false)
+                .error_msg("").data(Data).build();
+      }
+      catch (Exception e){
+return AuthenticationResponse.builder().error(true).error_msg(e.toString()).build();
+      }
+
+
+
   }
 
 
@@ -155,6 +213,21 @@ public class SuperAdminAuthenticationService {
             password.matches(".*[a-zA-Z].*") &&
             password.matches(".*\\d.*") &&
             password.matches(".*[!@#$%^&*()-_=+\\[\\]{}|;:'\",.<>/?].*");
+  }
+  public boolean isTokenExpired(String jwtToken) {
+    try {
+      Claims claims = jwtService.verify(jwtToken);
+      Date expirationDate = claims.getExpiration();
+      Date now = new Date();
+      return expirationDate != null && expirationDate.before(now);
+    }
+
+    catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+      return true;
+    }
+    catch (Exception e) {
+      return true;
+    }
   }
 
 }

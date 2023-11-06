@@ -29,6 +29,8 @@ public class AuthenticationResponse {
 
     public static class Data {
         private AuthenticationResponse.UserData user_data;
+        private AuthenticationResponse.AdminResponse adminResponse;
+        private AuthenticationResponse.TopUpResponse topUpResponse;
     }
 
     @lombok.Data
@@ -52,6 +54,15 @@ public class AuthenticationResponse {
         private Long user_id;
         private BigDecimal balance;
         private Role role;
+    }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class TopUpResponse {
+        private String status;
+        private String superAdminEmail;
+        private String userEmail;
+        private BigDecimal newBalance;
     }
 
 }
