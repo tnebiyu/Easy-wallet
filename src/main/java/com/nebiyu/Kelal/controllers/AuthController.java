@@ -1,8 +1,10 @@
 package com.nebiyu.Kelal.controllers;
 import com.nebiyu.Kelal.request.AuthenticationRequest;
+import com.nebiyu.Kelal.request.ChangePasswordRequest;
 import com.nebiyu.Kelal.response.AuthenticationResponse;
 import com.nebiyu.Kelal.response.AuthorizationResponse;
 import com.nebiyu.Kelal.request.RegisterRequest;
+import com.nebiyu.Kelal.response.ChangePasswordResponse;
 import com.nebiyu.Kelal.services.AuthenticationService;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,16 @@ public class AuthController{
           return ResponseEntity.ok().body(response);
       }
     }
+
+    @PostMapping("/change_user_password")
+    public ResponseEntity<ChangePasswordResponse> changeUserPassword(@RequestBody ChangePasswordRequest request, @RequestHeader("Auhorization") String jwtToken){
+        ChangePasswordResponse response = service.changePassword(request, jwtToken);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
+    }
+
 
 
 }

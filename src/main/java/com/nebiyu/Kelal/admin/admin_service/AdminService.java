@@ -122,7 +122,7 @@ public class AdminService {
 
             if (adminExist.isEmpty()) {
                 return AuthenticationResponse.builder().error(true)
-                        .error_msg(" admin is not registered, please register").build();
+                        .error_msg("admin is not registered, please register").build();
             }
             Admin admin = adminExist.get();
             if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {

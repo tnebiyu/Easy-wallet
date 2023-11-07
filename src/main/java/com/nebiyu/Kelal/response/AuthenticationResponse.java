@@ -64,5 +64,15 @@ public class AuthenticationResponse {
         private String userEmail;
         private BigDecimal newBalance;
     }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ChangePassword {
+        private String status;
+        private String email;
+        private String password;
+        private BigDecimal newPassword;
+    }
+
 
 }

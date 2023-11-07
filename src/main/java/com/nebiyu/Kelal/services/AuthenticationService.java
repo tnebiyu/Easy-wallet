@@ -2,19 +2,30 @@ package com.nebiyu.Kelal.services;
 
 import com.nebiyu.Kelal.configuration.JWTService;
 import com.nebiyu.Kelal.request.AuthenticationRequest;
+import com.nebiyu.Kelal.request.ChangePasswordRequest;
 import com.nebiyu.Kelal.request.RegisterRequest;
 import com.nebiyu.Kelal.response.AuthenticationResponse;
 import com.nebiyu.Kelal.response.AuthorizationResponse;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
+import com.nebiyu.Kelal.response.ChangePasswordResponse;
+import com.nebiyu.Kelal.response.TransferResponse;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.CharArrayReader;
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -115,6 +126,44 @@ public class AuthenticationService {
             return AuthenticationResponse.builder().error(true).error_msg("Authentication Failed" + e.getMessage()).build();
         }
     }
+    public ChangePasswordResponse changePassword(ChangePasswordRequest request, String jwtToken){
+    try{
+        Optional<User> userExist = userRepository.findByEmail(request.getEmail());
+        if (userExist.isEmpty()) {
+            return ChangePasswordResponse.builder().error(true)
+                    .error_msg("user is not registered, please register").build();
+        }
+        Claims claims = jwtService.verify(jwtToken);
+        String email =(String) claims.get("email");
+        if (!Objects.equals(email, request.getEmail()) && isTokenExpired(jwtToken)) {
+
+            return ChangePasswordResponse.builder().error(true).error_msg("User is not authenticated or token is expired").build();
+        }
+        User user = userExist.get();
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return ChangePasswordResponse.builder().error(true).error_msg("password is incorrect").build();
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        var user_data = ChangePasswordResponse.ChangePassword.builder()
+                .email(user.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .newPassword(passwordEncoder.encode(request.getNewPassword()))
+                .build();
+        var data= ChangePasswordResponse.Data.builder()
+                .changePassword(user_data).build();
+        return ChangePasswordResponse.builder().error(false)
+                .error_msg("").data(data).build();
+
+
+    }
+    catch (Exception e){
+
+return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).build();
+
+    }
+
+    }
 
 
 
@@ -123,6 +172,21 @@ public class AuthenticationService {
                 password.matches(".*[a-zA-Z].*") &&
                 password.matches(".*\\d.*") &&
                 password.matches(".*[!@#$%^&*()-_=+\\[\\]{}|;:'\",.<>/?].*");
+    }
+    public boolean isTokenExpired(String jwtToken) {
+        try {
+            Claims claims = jwtService.verify(jwtToken);
+            Date expirationDate = claims.getExpiration();
+            Date now = new Date();
+            return expirationDate != null && expirationDate.before(now);
+        }
+
+        catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            return true;
+        }
+        catch (Exception e) {
+            return true;
+        }
     }
 
 
