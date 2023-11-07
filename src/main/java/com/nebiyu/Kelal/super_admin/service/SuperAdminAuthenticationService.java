@@ -7,12 +7,10 @@ import com.nebiyu.Kelal.configuration.JWTService;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.request.AuthenticationRequest;
-import com.nebiyu.Kelal.request.RegisterRequest;
-import com.nebiyu.Kelal.request.SadminCreateAdminRequest;
-import com.nebiyu.Kelal.request.TopUpRequest;
+import com.nebiyu.Kelal.request.*;
 import com.nebiyu.Kelal.response.AuthenticationResponse;
 import com.nebiyu.Kelal.response.AuthorizationResponse;
+import com.nebiyu.Kelal.response.ChangePasswordResponse;
 import com.nebiyu.Kelal.super_admin.model.SuperAdminModel;
 import com.nebiyu.Kelal.super_admin.super_admin_repo.SuperAdminRepo;
 import io.jsonwebtoken.Claims;
@@ -28,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -162,6 +161,44 @@ public class SuperAdminAuthenticationService {
     } catch (Exception e) {
       return AuthenticationResponse.builder().error(true).error_msg(e.getMessage()).build();
     }
+  }
+  public ChangePasswordResponse changePassword(ChangePasswordRequest request, String jwtToken){
+    try{
+      Optional<SuperAdminModel> userExist = superAdminRepo.findByEmail(request.getEmail());
+      if (userExist.isEmpty()) {
+        return ChangePasswordResponse.builder().error(true)
+                .error_msg("user is not registered, please register").build();
+      }
+      Claims claims = jwtService.verify(jwtToken);
+      String email =(String) claims.get("email");
+      if (!Objects.equals(email, request.getEmail()) && isTokenExpired(jwtToken)) {
+
+        return ChangePasswordResponse.builder().error(true).error_msg("User is not authenticated or token is expired").build();
+      }
+      SuperAdminModel sAdmin = userExist.get();
+      if (!passwordEncoder.matches(request.getPassword(), sAdmin.getPassword())) {
+        return ChangePasswordResponse.builder().error(true).error_msg("password is incorrect").build();
+      }
+      sAdmin.setPassword(passwordEncoder.encode(request.getNewPassword()));
+      superAdminRepo.save(sAdmin);
+      var user_data = ChangePasswordResponse.ChangePassword.builder()
+              .email(sAdmin.getEmail())
+              .password(passwordEncoder.encode(request.getPassword()))
+              .newPassword(passwordEncoder.encode(request.getNewPassword()))
+              .build();
+      var data= ChangePasswordResponse.Data.builder()
+              .changePassword(user_data).build();
+      return ChangePasswordResponse.builder().error(false)
+              .error_msg("").data(data).build();
+
+
+    }
+    catch (Exception e){
+
+      return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).build();
+
+    }
+
   }
   @Async
   public AuthenticationResponse topUpUser(TopUpRequest request, String jwtToken){

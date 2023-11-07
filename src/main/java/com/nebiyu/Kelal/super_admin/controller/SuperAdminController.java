@@ -1,12 +1,10 @@
 package com.nebiyu.Kelal.super_admin.controller;
 
 import com.nebiyu.Kelal.admin.admin_service.AdminService;
-import com.nebiyu.Kelal.request.AuthenticationRequest;
-import com.nebiyu.Kelal.request.RegisterRequest;
-import com.nebiyu.Kelal.request.SadminCreateAdminRequest;
-import com.nebiyu.Kelal.request.TopUpRequest;
+import com.nebiyu.Kelal.request.*;
 import com.nebiyu.Kelal.response.AuthenticationResponse;
 import com.nebiyu.Kelal.response.AuthorizationResponse;
+import com.nebiyu.Kelal.response.ChangePasswordResponse;
 import com.nebiyu.Kelal.super_admin.model.SuperAdminModel;
 import com.nebiyu.Kelal.super_admin.service.SuperAdminAuthenticationService;
 import com.nebiyu.Kelal.super_admin.super_admin_repo.SuperAdminRepo;
@@ -68,6 +66,14 @@ public class SuperAdminController{
             return ResponseEntity.badRequest().body(response);
         }
         return ResponseEntity.ok().body(response);
+    }
+    @PostMapping("/update_super_admin_password")
+    public ResponseEntity<ChangePasswordResponse> updateSuperAdminPassword(@RequestBody ChangePasswordRequest request, @RequestHeader("Authorization") String jwtToken){
+        ChangePasswordResponse response = superAdminService.changePassword(request, jwtToken);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok(response);
     }
 
 }
