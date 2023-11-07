@@ -34,6 +34,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
+    private final TwilioService twilioService;
     private final AuthenticationManager authenticationManager;
 
 @Async
@@ -173,18 +174,16 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
                 password.matches(".*\\d.*") &&
                 password.matches(".*[!@#$%^&*()-_=+\\[\\]{}|;:'\",.<>/?].*");
     }
+
     public boolean isTokenExpired(String jwtToken) {
         try {
             Claims claims = jwtService.verify(jwtToken);
             Date expirationDate = claims.getExpiration();
             Date now = new Date();
             return expirationDate != null && expirationDate.before(now);
-        }
-
-        catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+        } catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return true;
         }
     }

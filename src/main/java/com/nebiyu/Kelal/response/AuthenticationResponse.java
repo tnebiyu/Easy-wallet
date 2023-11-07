@@ -31,6 +31,8 @@ public class AuthenticationResponse {
         private AuthenticationResponse.UserData user_data;
         private AuthenticationResponse.AdminResponse adminResponse;
         private AuthenticationResponse.TopUpResponse topUpResponse;
+        private AuthenticationResponse.ResponseOtp responseOtp;
+        private AuthenticationResponse.VerifyOtp verifyOtp;
     }
 
     @lombok.Data
@@ -72,6 +74,24 @@ public class AuthenticationResponse {
         private String email;
         private String password;
         private BigDecimal newPassword;
+    }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ResponseOtp {
+        private String status;
+        private String otp;
+
+
+    }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class VerifyOtp {
+        private boolean isCorrect;
+        private String otp;
+        private String phone;
+
     }
 
 
