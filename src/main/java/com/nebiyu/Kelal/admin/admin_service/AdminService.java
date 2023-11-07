@@ -86,34 +86,34 @@ public class AdminService {
         }
 
     }
-    @Async
-    public AuthorizationResponse createAdmin(Admin admin) {
-        try {
-Optional<Admin> userExists = adminRepo.findByEmail(admin.getEmail());
-if (userExists.isPresent()){
-    return AuthorizationResponse.builder().error(true).error_msg("user already exists").build();
-}
-var admin1 = Admin.builder().email(admin.getEmail()).
-        firstName(admin.getFirstName()).lastName(admin.getLastName())
-                .balance(BigDecimal.ZERO).role(Role.ADMIN).build();
-            adminRepo.save(admin1);
-            var adminData = AuthorizationResponse.UserData.builder()
-                    .email(admin.getEmail()).balance(BigDecimal.ZERO)
-                    .firstName(admin.getFirstName())
-                    .lastName(admin.getLastName()).build();
-            var data = AuthorizationResponse.Data.builder()
-                    .user_data(adminData).build();
-
-            return   AuthorizationResponse.builder()
-                    .error(false).error_msg("")
-                    .data(data).build();
-
-        } catch (Exception e) {
-
-            return AuthorizationResponse.builder()
-                    .error(true).error_msg("error occurred " + e.getMessage()).build();
-        }
-    }
+//    @Async
+//    public AuthorizationResponse createAdmin(Admin admin) {
+//        try {
+//Optional<Admin> userExists = adminRepo.findByEmail(admin.getEmail());
+//if (userExists.isPresent()){
+//    return AuthorizationResponse.builder().error(true).error_msg("user already exists").build();
+//}
+//var admin1 = Admin.builder().email(admin.getEmail()).
+//        firstName(admin.getFirstName()).lastName(admin.getLastName())
+//                .balance(BigDecimal.ZERO).role(Role.ADMIN).build();
+//            adminRepo.save(admin1);
+//            var adminData = AuthorizationResponse.UserData.builder()
+//                    .email(admin.getEmail()).balance(BigDecimal.ZERO)
+//                    .firstName(admin.getFirstName())
+//                    .lastName(admin.getLastName()).build();
+//            var data = AuthorizationResponse.Data.builder()
+//                    .user_data(adminData).build();
+//
+//            return   AuthorizationResponse.builder()
+//                    .error(false).error_msg("")
+//                    .data(data).build();
+//
+//        } catch (Exception e) {
+//
+//            return AuthorizationResponse.builder()
+//                    .error(true).error_msg("error occurred " + e.getMessage()).build();
+//        }
+//    }
     @Async
     public AuthenticationResponse authenticateAdmin(AuthenticationRequest request) {
         try {

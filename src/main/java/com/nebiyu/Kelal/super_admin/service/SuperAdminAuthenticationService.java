@@ -1,5 +1,6 @@
 package com.nebiyu.Kelal.super_admin.service;
 
+import com.nebiyu.Kelal.admin.adminRepo.AdminRepo;
 import com.nebiyu.Kelal.admin.admin_service.AdminService;
 import com.nebiyu.Kelal.admin.model.Admin;
 import com.nebiyu.Kelal.configuration.JWTService;
@@ -36,6 +37,7 @@ public class SuperAdminAuthenticationService {
   private final  SuperAdminRepo superAdminRepo;
   private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AdminRepo adminRepo;
     private final JWTService jwtService;
     private final AdminService adminService;
     private final AuthenticationManager authenticationManager;
@@ -152,12 +154,8 @@ public class SuperAdminAuthenticationService {
                               .firstName(request.getAdminFirstName())
                                       .lastName(request.getAdminLastName())
                                               .balance(BigDecimal.ZERO)
-              .role(Role.ADMIN)
-                                                      .build();
-
-
-
-      adminService.createAdmin(admin);
+              .role(Role.ADMIN).build();
+      adminRepo.save(admin);
 
 
       return AuthenticationResponse.builder().error(false).error_msg("Admin account created successfully").build();
