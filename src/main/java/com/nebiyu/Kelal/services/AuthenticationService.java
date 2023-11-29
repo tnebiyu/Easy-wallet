@@ -1,8 +1,6 @@
 package com.nebiyu.Kelal.services;
 
 import com.nebiyu.Kelal.configuration.JWTService;
-import com.nebiyu.Kelal.model.PhoneUserModel;
-import com.nebiyu.Kelal.repositories.UserRepoPhoneNumber;
 import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
 import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
 import com.nebiyu.Kelal.dto.request.RegisterRequest;
@@ -33,7 +31,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
-    private final UserRepoPhoneNumber userRepoPhoneNumber;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
     private final TwilioService twilioService;
@@ -183,7 +180,7 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
     @Async
     public AuthorizationResponse registerWithPhoneNumber(RegisterWithPhoneRequest request) {
         try {
-            Optional<PhoneUserModel> existingUser = userRepoPhoneNumber.findByPhoneNumber(request.getPhoneNumber());
+            Optional<User> existingUser = userRepository.findByPhoneNumber(request.getPhoneNumber());
 
             if (existingUser.isPresent()) {
                 return AuthorizationResponse.builder()
@@ -200,7 +197,7 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
                         .build();
             }
 
-            var user = PhoneUserModel.builder()
+            var user = User.builder()
                     .firstName(request.getFirstname())
                     .lastName(request.getLastname())
                     .phoneNumber(request.getPhoneNumber())
@@ -208,7 +205,7 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
                     .role(Role.USER)
                     .balance(BigDecimal.ZERO)
                     .build();
-           userRepoPhoneNumber.save(user);
+           userRepository.save(user);
             var responseBuilder = AuthorizationResponse.builder().error(false)
                     .error_msg("");
             var userData = AuthorizationResponse.UserData.builder().firstName(request.getFirstname())

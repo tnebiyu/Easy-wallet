@@ -1,13 +1,13 @@
 package com.nebiyu.Kelal.services;
 import com.nebiyu.Kelal.dto.response.TransactionResponseId;
 import com.nebiyu.Kelal.model.OtpVerification;
-import com.nebiyu.Kelal.model.PhoneUserModel;
+import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.OtpVerificationRepository;
-import com.nebiyu.Kelal.repositories.UserRepoPhoneNumber;
 import com.nebiyu.Kelal.dto.request.RequestOtp;
 import com.nebiyu.Kelal.dto.request.ResetPasswordRequest;
 import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
 import com.nebiyu.Kelal.dto.response.OtpResponse;
+import com.nebiyu.Kelal.repositories.UserRepository;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,9 @@ import java.util.Random;
 public class TwilioService {
     @Value("${twilio.account_sid}")
     private String accountSid;
+    private final UserRepository userRepository;
     private final OtpVerificationRepository otpVerificationRepository;
-    private final UserRepoPhoneNumber userRepoPhoneNumber;
+
 
     @Value("${twilio.auth_token}")
     private String authToken;
@@ -80,7 +81,7 @@ public class TwilioService {
     }
     public AuthenticationResponse resetPasswordRequest(ResetPasswordRequest request){
         try{
-            Optional<PhoneUserModel> userExist = userRepoPhoneNumber.findByPhoneNumber(request.getPhoneNumber());
+            Optional<User> userExist = userRepository.findByPhoneNumber(request.getPhoneNumber());
             Optional<OtpVerification> userOptional = otpVerificationRepository.findByPhoneNumber(request.getPhoneNumber());
             if (userExist.isEmpty()){
                 return AuthenticationResponse.builder().error(true)
@@ -100,10 +101,10 @@ public class TwilioService {
 
                return AuthenticationResponse.builder().error(true).error_msg("otp is incorrect").build();
            }
-            PhoneUserModel user = userExist.get();
+            User user = userExist.get();
 
             user.setPassword(request.getNew_login_password());
-            userRepoPhoneNumber.save(user);
+            userRepository.save(user);
             otpVerificationRepository.delete(otp);
 
 

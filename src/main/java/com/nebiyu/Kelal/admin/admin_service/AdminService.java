@@ -1,7 +1,5 @@
 package com.nebiyu.Kelal.admin.admin_service;
 
-import com.nebiyu.Kelal.admin.adminRepo.AdminRepo;
-import com.nebiyu.Kelal.admin.model.Admin;
 import com.nebiyu.Kelal.configuration.JWTService;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
@@ -32,7 +30,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
-    private final AdminRepo adminRepo;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JWTService jwtService;
@@ -41,7 +38,7 @@ public class AdminService {
     @Async
   public  AuthorizationResponse registerAdmin(RegisterRequest request){
         try {
-            Optional<Admin> existingUser = adminRepo.findByEmail(request.getEmail());
+            Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
 
             if (existingUser.isPresent()) {
                 return AuthorizationResponse.builder()
@@ -58,7 +55,7 @@ public class AdminService {
                         .build();
             }
 
-            var admin = Admin.builder()
+            var admin = User.builder()
                     .firstName(request.getFirstname())
                     .lastName(request.getLastname())
                     .email(request.getEmail())
@@ -66,7 +63,7 @@ public class AdminService {
                     .role(Role.ADMIN)
                     .balance(BigDecimal.ZERO)
                     .build();
-            adminRepo.save(admin);
+            userRepository.save(admin);
             var responseBuilder = AuthorizationResponse.builder().error(false)
                     .error_msg("");
             var userData = AuthorizationResponse.UserData.builder().firstName(request.getFirstname())
@@ -88,37 +85,9 @@ public class AdminService {
         }
 
     }
-//    @Async
-//    public AuthorizationResponse createAdmin(Admin admin) {
-//        try {
-//Optional<Admin> userExists = adminRepo.findByEmail(admin.getEmail());
-//if (userExists.isPresent()){
-//    return AuthorizationResponse.builder().error(true).error_msg("user already exists").build();
-//}
-//var admin1 = Admin.builder().email(admin.getEmail()).
-//        firstName(admin.getFirstName()).lastName(admin.getLastName())
-//                .balance(BigDecimal.ZERO).role(Role.ADMIN).build();
-//            adminRepo.save(admin1);
-//            var adminData = AuthorizationResponse.UserData.builder()
-//                    .email(admin.getEmail()).balance(BigDecimal.ZERO)
-//                    .firstName(admin.getFirstName())
-//                    .lastName(admin.getLastName()).build();
-//            var data = AuthorizationResponse.Data.builder()
-//                    .user_data(adminData).build();
-//
-//            return   AuthorizationResponse.builder()
-//                    .error(false).error_msg("")
-//                    .data(data).build();
-//
-//        } catch (Exception e) {
-//
-//            return AuthorizationResponse.builder()
-//                    .error(true).error_msg("error occurred " + e.getMessage()).build();
-//        }
-//    }
 public ChangePasswordResponse changePassword(ChangePasswordRequest request, String jwtToken){
     try{
-        Optional<Admin> userExist = adminRepo.findByEmail(request.getEmail());
+        Optional<User> userExist = userRepository.findByEmail(request.getEmail());
         if (userExist.isEmpty()) {
             return ChangePasswordResponse.builder().error(true)
                     .error_msg("user is not registered, please register").build();
@@ -129,12 +98,12 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
 
             return ChangePasswordResponse.builder().error(true).error_msg("User is not authenticated or token is expired").build();
         }
-        Admin admin = userExist.get();
+        User admin = userExist.get();
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
             return ChangePasswordResponse.builder().error(true).error_msg("password is incorrect").build();
         }
         admin.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        adminRepo.save(admin);
+        userRepository.save(admin);
         var user_data = ChangePasswordResponse.ChangePassword.builder()
                 .email(admin.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -157,17 +126,26 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
     @Async
     public AuthenticationResponse authenticateAdmin(AuthenticationRequest request) {
         try {
-            Optional<Admin> adminExist = adminRepo.findByEmail(request.getEmail());
-            System.out.println("this is the admin ddd" + adminExist);
-            System.out.println("this is the admin" + adminExist.get());
+            Optional<User> adminExist = userRepository.findByEmail(request.getEmail());
+            System.out.println("admin exist " + adminExist);
+
 
 
 
             if (adminExist.isEmpty()) {
+                System.out.println("admin is not found");
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("admin is not registered, please register").build();
             }
-            Admin admin = adminExist.get();
+
+            System.out.println("admin is found");
+            User admin = adminExist.get();
+            if (admin.getRole() != Role.ADMIN){
+                return AuthenticationResponse.builder()
+                        .error(true).error_msg("this email is not an admin").build();
+            }
+            System.out.println("this is the admin account " + admin);
+            System.out.println("this is the admin email address " + admin.getEmail());
             if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
                 return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
             }
@@ -202,7 +180,7 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
     public AuthenticationResponse topUpUser(TopUpRequest request, String jwtToken){
         try{
 
-            Optional<Admin> superAdmin = adminRepo.findByEmail(request.getAdminEmail());
+            Optional<User> superAdmin = userRepository.findByEmail(request.getAdminEmail());
             Optional<User> userOptional = userRepository.findByEmail(request.getUserEmail());
             Claims claims = jwtService.verify(jwtToken);
             String superAdminEmail =(String) claims.get("email");
@@ -214,7 +192,7 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
             if (userOptional.isEmpty()){
                 return AuthenticationResponse.builder().error(true).error_msg("account not found for a user").build();
             }
-            Admin admin = superAdmin.get();
+            User admin = superAdmin.get();
             if (!passwordEncoder.matches(superAdminEmail, admin.getPassword()) && isTokenExpired(jwtToken)) {
                 return AuthenticationResponse.builder().error(true).error_msg("password is incorrect. Permission is denied").build();
             }

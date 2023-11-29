@@ -5,7 +5,6 @@ import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
 import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
 import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
 import com.nebiyu.Kelal.super_admin.service.SuperAdminAuthenticationService;
-import com.nebiyu.Kelal.super_admin.super_admin_repo.SuperAdminRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class SuperAdminController{
     private final SuperAdminAuthenticationService superAdminService;
-    private final SuperAdminRepo superAdminRepo;
 
     @PostMapping("/register")
     public ResponseEntity<AuthorizationResponse> register(@RequestBody RegisterRequest request) {
