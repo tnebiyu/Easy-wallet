@@ -1,7 +1,6 @@
-package com.nebiyu.Kelal.response;
+package com.nebiyu.Kelal.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.twilio.rest.api.v2010.account.Message;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

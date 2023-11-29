@@ -4,13 +4,14 @@ import com.nebiyu.Kelal.admin.adminRepo.AdminRepo;
 import com.nebiyu.Kelal.admin.admin_service.AdminService;
 import com.nebiyu.Kelal.admin.model.Admin;
 import com.nebiyu.Kelal.configuration.JWTService;
+import com.nebiyu.Kelal.dto.request.*;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.request.*;
-import com.nebiyu.Kelal.response.AuthenticationResponse;
-import com.nebiyu.Kelal.response.AuthorizationResponse;
-import com.nebiyu.Kelal.response.ChangePasswordResponse;
+
+import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
+import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
+import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
 import com.nebiyu.Kelal.super_admin.model.SuperAdminModel;
 import com.nebiyu.Kelal.super_admin.super_admin_repo.SuperAdminRepo;
 import io.jsonwebtoken.Claims;
@@ -38,7 +39,6 @@ public class SuperAdminAuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AdminRepo adminRepo;
     private final JWTService jwtService;
-    private final AdminService adminService;
     private final AuthenticationManager authenticationManager;
 
     @Async
@@ -95,14 +95,22 @@ public class SuperAdminAuthenticationService {
   @Async
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
     try {
+      System.out.println("this is the request email address  " + request.getEmail());
+      System.out.println("this is the request password " + request.getPassword());
       Optional<SuperAdminModel> superAdminExist = superAdminRepo.findByEmail(request.getEmail());
+      System.out.println("super admin exist   " + superAdminExist);
 
       if (superAdminExist.isEmpty()) {
+        System.out.println("super admin is not found" + superAdminExist);
         return AuthenticationResponse.builder().error(true)
                 .error_msg("super admin is not registered, please register").build();
       }
+      System.out.println("super admin exists ");
       SuperAdminModel superAdmin = superAdminExist.get();
+
+      System.out.println("this is the super admin " + superAdmin );
       if (!passwordEncoder.matches(request.getPassword(), superAdmin.getPassword())) {
+        System.out.println("this is the password" + request.getPassword() + "and " + superAdmin.getPassword());
         return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
       }
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -124,6 +132,8 @@ public class SuperAdminAuthenticationService {
       var data = AuthenticationResponse.Data.builder()
               .user_data(userData).build();
       responseBuilder.data(data).build();
+      System.out.println("data is " + data);
+      System.out.println("user data is " + userData);
 
 
       return responseBuilder.build();

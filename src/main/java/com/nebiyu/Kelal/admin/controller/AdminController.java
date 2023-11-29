@@ -1,13 +1,13 @@
 package com.nebiyu.Kelal.admin.controller;
 
 import com.nebiyu.Kelal.admin.admin_service.AdminService;
-import com.nebiyu.Kelal.request.AuthenticationRequest;
-import com.nebiyu.Kelal.request.ChangePasswordRequest;
-import com.nebiyu.Kelal.request.RegisterRequest;
-import com.nebiyu.Kelal.request.TopUpRequest;
-import com.nebiyu.Kelal.response.AuthenticationResponse;
-import com.nebiyu.Kelal.response.AuthorizationResponse;
-import com.nebiyu.Kelal.response.ChangePasswordResponse;
+import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
+import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
+import com.nebiyu.Kelal.dto.request.RegisterRequest;
+import com.nebiyu.Kelal.dto.request.TopUpRequest;
+import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
+import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
+import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +22,17 @@ public class AdminController{
     @PostMapping("/register")
     public ResponseEntity<AuthorizationResponse> register(@RequestBody RegisterRequest request) {
         AuthorizationResponse response = adminService.registerAdmin(request);
+        System.out.println("this is the user request " + request);
+        System.out.println("this is the response  " + response);
+        System.out.println("admin is going to register");
 
         if (response.isError()) {
+            System.out.println("admin error occured");
+
             return ResponseEntity.badRequest()
                     .body(response);
         } else {
+            System.out.println("admin error is not occurred");
             return ResponseEntity.ok()
                     .body(response);
         }

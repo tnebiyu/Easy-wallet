@@ -1,19 +1,14 @@
 package com.nebiyu.Kelal.super_admin.controller;
 
-import com.nebiyu.Kelal.admin.admin_service.AdminService;
-import com.nebiyu.Kelal.request.*;
-import com.nebiyu.Kelal.response.AuthenticationResponse;
-import com.nebiyu.Kelal.response.AuthorizationResponse;
-import com.nebiyu.Kelal.response.ChangePasswordResponse;
-import com.nebiyu.Kelal.super_admin.model.SuperAdminModel;
+import com.nebiyu.Kelal.dto.request.*;
+import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
+import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
+import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
 import com.nebiyu.Kelal.super_admin.service.SuperAdminAuthenticationService;
 import com.nebiyu.Kelal.super_admin.super_admin_repo.SuperAdminRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 
 @RestController

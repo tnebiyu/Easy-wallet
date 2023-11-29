@@ -1,11 +1,11 @@
 package com.nebiyu.Kelal.controllers;
+import com.nebiyu.Kelal.dto.request.*;
 import com.nebiyu.Kelal.model.OtpVerification;
 import com.nebiyu.Kelal.repositories.OtpVerificationRepository;
-import com.nebiyu.Kelal.request.*;
-import com.nebiyu.Kelal.response.AuthenticationResponse;
-import com.nebiyu.Kelal.response.AuthorizationResponse;
-import com.nebiyu.Kelal.response.ChangePasswordResponse;
-import com.nebiyu.Kelal.response.OtpResponse;
+import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
+import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
+import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
+import com.nebiyu.Kelal.dto.response.OtpResponse;
 import com.nebiyu.Kelal.services.AuthenticationService;
 
 import com.nebiyu.Kelal.services.TwilioService;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("${AUTH_CLASS_REQUEST_MAPPING}")
+@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class AuthController{
     private final AuthenticationService service;
@@ -25,7 +25,7 @@ public class AuthController{
 
     private final OtpVerificationRepository otpVerificationRepository;
 
-    @PostMapping("${REGISTER_API_CALL}")
+    @PostMapping("/register")
     public ResponseEntity<AuthorizationResponse> register(@RequestBody RegisterRequest request) {
         AuthorizationResponse response = service.register(request);
 
@@ -62,7 +62,7 @@ public class AuthController{
     public ResponseEntity<OtpResponse> requestOTP(@RequestParam RequestOtp requestOtp) {
 
         String otp = twilioService.generateOTP(6);
-        OtpResponse response = twilioService.sendSms(requestOtp, "Your OTP:" + otp);
+        OtpResponse response = twilioService.sendOtpSms(requestOtp, "Your OTP:" + otp);
         if (!response.isError()){
             var otpVerification = OtpVerification.builder().phoneNumber(
                     requestOtp.getPhoneNumber()).otp(otp).build();
@@ -76,10 +76,12 @@ public class AuthController{
 
 
     }
-    @PostMapping("/verify-otp")
+    @PostMapping("/verify_otp")
     public ResponseEntity<String> verifyOTP(@RequestBody VerifyOTP request) {
 
         Optional<OtpVerification> storedOtp = otpVerificationRepository.findByPhoneNumber(request.getPhoneNumber());
+        System.out.println("this is the stored otp " + storedOtp);
+
 
         if (storedOtp.isPresent() && storedOtp.get().getOtp().equals(request.getOtp())) {
             otpVerificationRepository.delete(storedOtp.get());
@@ -87,6 +89,14 @@ public class AuthController{
         } else {
             return ResponseEntity.badRequest().body("Invalid otp");
         }
+    }
+    @PostMapping("/reset_password")
+    public ResponseEntity<AuthenticationResponse> resetPassword(@RequestBody ResetPasswordRequest request){
+        AuthenticationResponse response = twilioService.resetPasswordRequest(request);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
     }
 
 

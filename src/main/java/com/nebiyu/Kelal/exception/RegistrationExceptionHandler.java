@@ -1,6 +1,6 @@
 package com.nebiyu.Kelal.exception;
 
-import com.nebiyu.Kelal.response.AuthorizationResponse;
+import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

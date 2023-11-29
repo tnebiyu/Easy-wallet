@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.request;
+package com.nebiyu.Kelal.dto.request;
 import com.nebiyu.Kelal.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

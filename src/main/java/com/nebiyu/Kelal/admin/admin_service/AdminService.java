@@ -6,14 +6,13 @@ import com.nebiyu.Kelal.configuration.JWTService;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.request.AuthenticationRequest;
-import com.nebiyu.Kelal.request.ChangePasswordRequest;
-import com.nebiyu.Kelal.request.RegisterRequest;
-import com.nebiyu.Kelal.request.TopUpRequest;
-import com.nebiyu.Kelal.response.AuthenticationResponse;
-import com.nebiyu.Kelal.response.AuthorizationResponse;
-import com.nebiyu.Kelal.response.ChangePasswordResponse;
-import com.nebiyu.Kelal.super_admin.model.SuperAdminModel;
+import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
+import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
+import com.nebiyu.Kelal.dto.request.RegisterRequest;
+import com.nebiyu.Kelal.dto.request.TopUpRequest;
+import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
+import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
+import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -159,6 +158,9 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
     public AuthenticationResponse authenticateAdmin(AuthenticationRequest request) {
         try {
             Optional<Admin> adminExist = adminRepo.findByEmail(request.getEmail());
+            System.out.println("this is the admin ddd" + adminExist);
+            System.out.println("this is the admin" + adminExist.get());
+
 
 
             if (adminExist.isEmpty()) {

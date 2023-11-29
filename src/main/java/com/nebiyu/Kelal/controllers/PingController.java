@@ -1,10 +1,6 @@
 package com.nebiyu.Kelal.controllers;
-import com.nebiyu.Kelal.response.PingResponse;
-import com.nebiyu.Kelal.response.TransactionHistoryResponse;
+import com.nebiyu.Kelal.dto.response.PingResponse;
 import com.nebiyu.Kelal.services.PingService;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestParam;
-import com.nebiyu.Kelal.services.TransactionService;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.beans.factory.annotation.Autowired;

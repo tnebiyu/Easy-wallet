@@ -26,6 +26,7 @@ public class User implements UserDetails {
     private String lastName;
 
     private String email;
+    private String phoneNumber;
     private String password;
     @Column(precision = 10, scale = 2)
     private BigDecimal balance;

@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.response;
+package com.nebiyu.Kelal.dto.response;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 @Builder

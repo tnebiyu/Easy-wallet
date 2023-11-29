@@ -1,6 +1,6 @@
 package com.nebiyu.Kelal.services;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.response.PingResponse;
+import com.nebiyu.Kelal.dto.response.PingResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

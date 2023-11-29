@@ -1,16 +1,18 @@
 package com.nebiyu.Kelal.services;
 
 import com.nebiyu.Kelal.configuration.JWTService;
-import com.nebiyu.Kelal.request.AuthenticationRequest;
-import com.nebiyu.Kelal.request.ChangePasswordRequest;
-import com.nebiyu.Kelal.request.RegisterRequest;
-import com.nebiyu.Kelal.response.AuthenticationResponse;
-import com.nebiyu.Kelal.response.AuthorizationResponse;
+import com.nebiyu.Kelal.model.PhoneUserModel;
+import com.nebiyu.Kelal.repositories.UserRepoPhoneNumber;
+import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
+import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
+import com.nebiyu.Kelal.dto.request.RegisterRequest;
+import com.nebiyu.Kelal.dto.request.RegisterWithPhoneRequest;
+import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
+import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.response.ChangePasswordResponse;
-import com.nebiyu.Kelal.response.TransferResponse;
+import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -22,7 +24,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.CharArrayReader;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
@@ -32,12 +33,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
+    private final UserRepoPhoneNumber userRepoPhoneNumber;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
     private final TwilioService twilioService;
     private final AuthenticationManager authenticationManager;
 
-@Async
+    @Async
     public AuthorizationResponse register(RegisterRequest request) {
         try {
             Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
@@ -61,11 +63,13 @@ public class AuthenticationService {
                     .firstName(request.getFirstname())
                     .lastName(request.getLastname())
                     .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.USER)
                     .balance(BigDecimal.ZERO)
                     .build();
             userRepository.save(user);
+            System.out.println("this is the user registered  " + user);
             var responseBuilder = AuthorizationResponse.builder().error(false)
                     .error_msg("");
           var userData = AuthorizationResponse.UserData.builder().firstName(request.getFirstname())
@@ -89,15 +93,25 @@ public class AuthenticationService {
     @Async
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         try {
+            System.out.println("this is the request email address  " + request.getEmail());
+            System.out.println("this is the request password " + request.getPassword());
+
             Optional<User> userExist = userRepository.findByEmail(request.getEmail());
+            System.out.println("user exist   " + userExist);
 
 
             if (userExist.isEmpty()) {
+                System.out.println("user is not found" + userExist);
+
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("user is not registered, please register").build();
             }
+            System.out.println("user exists ");
             User user = userExist.get();
+            System.out.println("this is the user account " + user);
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                System.out.println("this is the password" + request.getPassword() + "and " + user.getPassword());
+
                 return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
             }
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -120,7 +134,8 @@ public class AuthenticationService {
                     .user_data(userData).build();
             responseBuilder.data(data).build();
 
-
+            System.out.println("data is " + data);
+            System.out.println("user data is " + userData);
             return responseBuilder.build();
         }
         catch (Exception e){
@@ -164,6 +179,55 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
 
     }
 
+    }
+    @Async
+    public AuthorizationResponse registerWithPhoneNumber(RegisterWithPhoneRequest request) {
+        try {
+            Optional<PhoneUserModel> existingUser = userRepoPhoneNumber.findByPhoneNumber(request.getPhoneNumber());
+
+            if (existingUser.isPresent()) {
+                return AuthorizationResponse.builder()
+                        .error(true)
+                        .error_msg("user already registered")
+                        .build();
+            }
+
+            String password = request.getPassword();
+            if (!isPasswordComplex(password)) {
+                return AuthorizationResponse.builder()
+                        .error(true)
+                        .error_msg("invalid_password")
+                        .build();
+            }
+
+            var user = PhoneUserModel.builder()
+                    .firstName(request.getFirstname())
+                    .lastName(request.getLastname())
+                    .phoneNumber(request.getPhoneNumber())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(Role.USER)
+                    .balance(BigDecimal.ZERO)
+                    .build();
+           userRepoPhoneNumber.save(user);
+            var responseBuilder = AuthorizationResponse.builder().error(false)
+                    .error_msg("");
+            var userData = AuthorizationResponse.UserData.builder().firstName(request.getFirstname())
+                    .lastName(request.getLastname())
+                    .balance(BigDecimal.ZERO)
+                    .build();
+
+            var data = AuthorizationResponse.Data.builder()
+                    .user_data(userData).build();
+            responseBuilder.data(data).build();
+
+
+            return AuthorizationResponse.builder().data(data).error(false).error_msg("").build();
+        } catch (Exception e) {
+            return AuthorizationResponse.builder()
+                    .error(true)
+                    .error_msg(e.getMessage())
+                    .build();
+        }
     }
 
 

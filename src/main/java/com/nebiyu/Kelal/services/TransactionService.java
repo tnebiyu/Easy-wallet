@@ -2,16 +2,17 @@ package com.nebiyu.Kelal.services;
 
 
 import com.nebiyu.Kelal.configuration.JWTService;
+//import com.nebiyu.Kelal.kafka.kafkaproducer.KafkaProducerService;
 import com.nebiyu.Kelal.model.TransactionModel;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.TransactionRepository;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.request.TransferRequestWithEmail;
-import com.nebiyu.Kelal.request.TransferRequestWithId;
-import com.nebiyu.Kelal.response.RecentTransactionResponse;
-import com.nebiyu.Kelal.response.TransactionHistoryResponse;
-import com.nebiyu.Kelal.response.TransactionResponseId;
-import com.nebiyu.Kelal.response.TransferResponse;
+import com.nebiyu.Kelal.dto.request.TransferRequestWithEmail;
+import com.nebiyu.Kelal.dto.request.TransferRequestWithId;
+import com.nebiyu.Kelal.dto.response.RecentTransactionResponse;
+import com.nebiyu.Kelal.dto.response.TransactionHistoryResponse;
+import com.nebiyu.Kelal.dto.response.TransactionResponseId;
+import com.nebiyu.Kelal.dto.response.TransferResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -28,6 +29,9 @@ public class TransactionService {
     private UserRepository userRepository;
     @Autowired
     private TransactionRepository transactionRepository;
+//    @Autowired
+
+   // private KafkaProducerService kafkaProducer;
     @Autowired
     private JWTService jwtService;
     @Transactional
@@ -144,6 +148,8 @@ transactionRepository.save(transaction);
                 userRepository.save(sender.get());
                 userRepository.save(receiver.get());
                 transactionRepository.save(transaction);
+               // kafkaProducer.sendTransactionMessage(transactionResponseSenderUserData);
+
 
                 var data = TransactionResponseId.Data.builder().user_data(transactionResponseSenderUserData).build();
                 return TransactionResponseId.builder().data(data).error(false).error_msg("").build();

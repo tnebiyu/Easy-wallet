@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.response;
+package com.nebiyu.Kelal.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.nebiyu.Kelal.model.User;
@@ -47,6 +47,7 @@ public class TransactionResponseId {
 
         private BigDecimal amount;
         private Date timestamp;
+        private String phoneNumber;
     }
 }
 

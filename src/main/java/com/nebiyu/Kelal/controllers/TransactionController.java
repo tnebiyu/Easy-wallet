@@ -1,11 +1,11 @@
 package com.nebiyu.Kelal.controllers;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.request.TransferRequestWithEmail;
-import com.nebiyu.Kelal.request.TransferRequestWithId;
-import com.nebiyu.Kelal.response.RecentTransactionResponse;
-import com.nebiyu.Kelal.response.TransactionHistoryResponse;
-import com.nebiyu.Kelal.response.TransactionResponseId;
-import com.nebiyu.Kelal.response.TransferResponse;
+import com.nebiyu.Kelal.dto.request.TransferRequestWithEmail;
+import com.nebiyu.Kelal.dto.request.TransferRequestWithId;
+import com.nebiyu.Kelal.dto.response.RecentTransactionResponse;
+import com.nebiyu.Kelal.dto.response.TransactionHistoryResponse;
+import com.nebiyu.Kelal.dto.response.TransactionResponseId;
+import com.nebiyu.Kelal.dto.response.TransferResponse;
 import com.nebiyu.Kelal.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
