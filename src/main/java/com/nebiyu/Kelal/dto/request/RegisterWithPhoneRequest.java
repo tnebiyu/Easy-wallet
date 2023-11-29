@@ -1,5 +1,5 @@
 package com.nebiyu.Kelal.request;
-import com.nebiyu.Kelal.model.Role;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-
+public class RegisterWithPhoneRequest {
     private String firstname;
     private String lastname;
-    private String email;
+    private String phoneNumber;
     private String password;
-
 }
