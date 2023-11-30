@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class TopUpRequest {
     private String adminEmail;
-    private String adminPassword;
     private BigDecimal amount;
     private String userEmail;
 }

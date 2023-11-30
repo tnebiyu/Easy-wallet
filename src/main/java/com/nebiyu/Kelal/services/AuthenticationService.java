@@ -52,11 +52,11 @@ public class AuthenticationService {
             if (!isPasswordComplex(password)) {
                 return AuthorizationResponse.builder()
                         .error(true)
-                        .error_msg("invalid_password")
+                        .error_msg("invalid password")
                         .build();
             }
 
-            var user = User.builder()
+            User user = User.builder()
                     .firstName(request.getFirstname())
                     .lastName(request.getLastname())
                     .email(request.getEmail())
@@ -197,7 +197,7 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
                         .build();
             }
 
-            var user = User.builder()
+            User user = User.builder()
                     .firstName(request.getFirstname())
                     .lastName(request.getLastname())
                     .phoneNumber(request.getPhoneNumber())

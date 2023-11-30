@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -33,6 +34,7 @@ public class AuthenticationResponse {
         private AuthenticationResponse.TopUpResponse topUpResponse;
         private AuthenticationResponse.ResponseOtp responseOtp;
         private AuthenticationResponse.VerifyOtp verifyOtp;
+        private AuthenticationResponse.AdminCreated adminCreated;
     }
 
     @lombok.Data
@@ -91,6 +93,19 @@ public class AuthenticationResponse {
         private boolean isCorrect;
         private String otp;
         private String phone;
+
+    }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class AdminCreated {
+        private boolean isAdminCreated;
+        private String adminEmail;
+        private String adminPassword;
+        private String adminFirstName;
+        private String adminLastName;
+        private String createdBy;
+        private Date timeStamp;
 
     }
 

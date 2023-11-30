@@ -1,5 +1,4 @@
 package com.nebiyu.Kelal.admin.admin_service;
-
 import com.nebiyu.Kelal.configuration.JWTService;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
@@ -55,7 +54,7 @@ public class AdminService {
                         .build();
             }
 
-            var admin = User.builder()
+            User admin = User.builder()
                     .firstName(request.getFirstname())
                     .lastName(request.getLastname())
                     .email(request.getEmail())
@@ -127,25 +126,17 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
     public AuthenticationResponse authenticateAdmin(AuthenticationRequest request) {
         try {
             Optional<User> adminExist = userRepository.findByEmail(request.getEmail());
-            System.out.println("admin exist " + adminExist);
-
-
-
 
             if (adminExist.isEmpty()) {
-                System.out.println("admin is not found");
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("admin is not registered, please register").build();
             }
 
-            System.out.println("admin is found");
             User admin = adminExist.get();
             if (admin.getRole() != Role.ADMIN){
                 return AuthenticationResponse.builder()
                         .error(true).error_msg("this email is not an admin").build();
             }
-            System.out.println("this is the admin account " + admin);
-            System.out.println("this is the admin email address " + admin.getEmail());
             if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
                 return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
             }
@@ -180,11 +171,16 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
     public AuthenticationResponse topUpUser(TopUpRequest request, String jwtToken){
         try{
 
-            Optional<User> superAdmin = userRepository.findByEmail(request.getAdminEmail());
+            Optional<User> adminOptional = userRepository.findByEmail(request.getAdminEmail());
             Optional<User> userOptional = userRepository.findByEmail(request.getUserEmail());
             Claims claims = jwtService.verify(jwtToken);
-            String superAdminEmail =(String) claims.get("email");
-            if (superAdmin.isEmpty()){
+            String adminEmail =(String) claims.get("email");
+            if (!Objects.equals(adminEmail, request.getAdminEmail()) && isTokenExpired(jwtToken)) {
+               // System.out.println("admin email " + adminEmail + "request admin email " + request.getAdminEmail() + "jwt token " + isTokenExpired(jwtToken) + jwtToken);
+
+                return AuthenticationResponse.builder().error(true).error_msg("admin is not authenticated or token is expired").build();
+            }
+            if (adminOptional.isEmpty()){
                 return AuthenticationResponse.builder().error(true).error_msg("account not found for super admin")
                         .build();
 
@@ -192,17 +188,34 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
             if (userOptional.isEmpty()){
                 return AuthenticationResponse.builder().error(true).error_msg("account not found for a user").build();
             }
-            User admin = superAdmin.get();
-            if (!passwordEncoder.matches(superAdminEmail, admin.getPassword()) && isTokenExpired(jwtToken)) {
-                return AuthenticationResponse.builder().error(true).error_msg("password is incorrect. Permission is denied").build();
+            if (Objects.equals(adminOptional, userOptional)) {
+                return AuthenticationResponse.builder().error(true).error_msg("Sender and Receiver are the same").build();
             }
+            User admin = adminOptional.get();
             User user = userOptional.get();
-            BigDecimal newBalance =   user.getBalance().add(request.getAmount());
+            if (admin.getRole() != Role.ADMIN){
+                return AuthenticationResponse.builder().error(true).error_msg("this account is not admin").build();
+            }
+            if (admin.getBalance().compareTo(request.getAmount()) <= 0) {
+                return AuthenticationResponse.builder().error(true)
+                        .error_msg("no balance please recharge your account")
+                        .build();
+
+            }
+            admin.setBalance(admin.getBalance().subtract(request.getAmount()));
+            user.setBalance(user.getBalance().add(request.getAmount()));
+
+
+            if (isTokenExpired(jwtToken)) {
+                return AuthenticationResponse.builder().error(true).error_msg("token expired please login again").build();
+            }
+            userRepository.save(admin);
+            userRepository.save(user);
 
             var topUpData = AuthenticationResponse.TopUpResponse.builder().superAdminEmail(
                             admin.getEmail()
                     ).userEmail(user.getEmail())
-                    .newBalance(newBalance)
+                    .newBalance(user.getBalance())
                     .status("success").build();
             var Data = AuthenticationResponse.Data.builder().topUpResponse(topUpData)
                     .build();

@@ -54,7 +54,7 @@ public class SuperAdminAuthenticationService {
                   .build();
         }
 
-        var superAdmin = User.builder()
+        User superAdmin = User.builder()
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
                 .email(request.getEmail())
@@ -88,22 +88,15 @@ public class SuperAdminAuthenticationService {
   @Async
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
     try {
-      System.out.println("this is the request email address  " + request.getEmail());
-      System.out.println("this is the request password " + request.getPassword());
       Optional<User> superAdminExist = userRepository.findByEmail(request.getEmail());
-      System.out.println("super admin exist   " + superAdminExist);
 
       if (superAdminExist.isEmpty()) {
-        System.out.println("super admin is not found" + superAdminExist);
         return AuthenticationResponse.builder().error(true)
                 .error_msg("super admin is not registered, please register").build();
       }
-      System.out.println("super admin exists ");
       User superAdmin = superAdminExist.get();
 
-      System.out.println("this is the super admin " + superAdmin );
       if (!passwordEncoder.matches(request.getPassword(), superAdmin.getPassword())) {
-        System.out.println("this is the password" + request.getPassword() + "and " + superAdmin.getPassword());
         return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
       }
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -125,8 +118,6 @@ public class SuperAdminAuthenticationService {
       var data = AuthenticationResponse.Data.builder()
               .user_data(userData).build();
       responseBuilder.data(data).build();
-      System.out.println("data is " + data);
-      System.out.println("user data is " + userData);
 
 
       return responseBuilder.build();
@@ -139,28 +130,56 @@ public class SuperAdminAuthenticationService {
   public AuthenticationResponse createAdminAccount(SadminCreateAdminRequest request, String jwtToken) {
     try {
       Optional<User> superAdminExists = userRepository.findByEmail(request.getSuperAdminEmail());
+      Optional<User> adminExists = userRepository.findByEmail(request.getAdminEmail());
       Claims claims = jwtService.verify(jwtToken);
-      String senderEmail =(String) claims.get("email");
+
+      String email =(String) claims.get("email");
+      if (!Objects.equals(email, request.getSuperAdminEmail()) && isTokenExpired(jwtToken)) {
+
+        return AuthenticationResponse.builder().error(true).error_msg("Super admin is not authenticated or token is expired").build();
+      }
       if (superAdminExists.isEmpty()){
         return AuthenticationResponse.builder().error(true).error_msg("super admin is not available with this account").build();
       }
-      User sAdmin = superAdminExists.get();
-      if (!passwordEncoder.matches(senderEmail, sAdmin.getPassword()) && isTokenExpired(jwtToken)) {
-        return AuthenticationResponse.builder().error(true).error_msg("password is incorrect. Permission denied").build();
+      if (adminExists.isPresent()){
+        return AuthenticationResponse.builder().error(true).error_msg("admin is already registered").build();
+
       }
-      authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-              request.getSuperAdminEmail(),
-              request.getSuperAdminPassword()));
+
+      if (Objects.equals(superAdminExists, adminExists)) {
+        return AuthenticationResponse.builder().error(true).error_msg("admin and super admin are the same").build();
+      }
+      User superAdmin = superAdminExists.get();
+      if (superAdmin.getRole() != Role.SUPERADMIN){
+        return AuthenticationResponse.builder().error(true).error_msg("this account is not super admin").build();
+      }
+      if (!isPasswordComplex(request.getAdminPassword())){
+        return AuthenticationResponse.builder().error(true).error_msg("password is not strong").build();
+
+      }
+
       User admin = User.builder().email(request.getAdminEmail())
-                      .password(request.getAdminPassword())
+                      .password(passwordEncoder.encode(request.getAdminPassword()))
                               .firstName(request.getAdminFirstName())
                                       .lastName(request.getAdminLastName())
                                               .balance(BigDecimal.ZERO)
               .role(Role.ADMIN).build();
       userRepository.save(admin);
+      var adminCreated =AuthenticationResponse.AdminCreated.builder()
+              .isAdminCreated(true)
+              .adminEmail(request.getAdminEmail())
+              .adminPassword(request.getAdminPassword())
+              .createdBy(request.getSuperAdminEmail())
+              .adminFirstName(request.getAdminFirstName())
+              .adminLastName(request.getAdminLastName())
+              .timeStamp(new Date())
+              .build();
+      var data = AuthenticationResponse.Data.builder()
+              .adminCreated(adminCreated)
+              .build();
 
 
-      return AuthenticationResponse.builder().error(false).error_msg("Admin account created successfully").build();
+      return AuthenticationResponse.builder().error(false).error_msg("Admin account created successfully").data(data).build();
     } catch (Exception e) {
       return AuthenticationResponse.builder().error(true).error_msg(e.getMessage()).build();
     }
@@ -172,22 +191,30 @@ public class SuperAdminAuthenticationService {
         return ChangePasswordResponse.builder().error(true)
                 .error_msg("user is not registered, please register").build();
       }
+      User sAdmin = userExist.get();
+      if (sAdmin.getRole() != Role.SUPERADMIN){
+        return ChangePasswordResponse.builder().error(true).error_msg("this account is not a super admin")
+                .build();
+      }
+
       Claims claims = jwtService.verify(jwtToken);
       String email =(String) claims.get("email");
       if (!Objects.equals(email, request.getEmail()) && isTokenExpired(jwtToken)) {
 
         return ChangePasswordResponse.builder().error(true).error_msg("User is not authenticated or token is expired").build();
       }
-      User sAdmin = userExist.get();
-      if (!passwordEncoder.matches(request.getPassword(), sAdmin.getPassword())) {
+      if (passwordEncoder.matches(request.getNewPassword(), sAdmin.getPassword())){
+        return ChangePasswordResponse.builder().error(true).error_msg("the new password is same as the old one").build();
+      }
+      if (!passwordEncoder.matches(request.getPassword(), sAdmin.getPassword())){
         return ChangePasswordResponse.builder().error(true).error_msg("password is incorrect").build();
       }
+
       sAdmin.setPassword(passwordEncoder.encode(request.getNewPassword()));
       userRepository.save(sAdmin);
       var user_data = ChangePasswordResponse.ChangePassword.builder()
               .email(sAdmin.getEmail())
-              .password(passwordEncoder.encode(request.getPassword()))
-              .newPassword(passwordEncoder.encode(request.getNewPassword()))
+              .newPassword(request.getNewPassword())
               .build();
       var data= ChangePasswordResponse.Data.builder()
               .changePassword(user_data).build();
@@ -207,11 +234,15 @@ public class SuperAdminAuthenticationService {
   public AuthenticationResponse topUpUser(TopUpRequest request, String jwtToken){
       try{
 
-        Optional<User> superAdmin = userRepository.findByEmail(request.getAdminEmail());
+        Optional<User> superAdminOpitonal = userRepository.findByEmail(request.getAdminEmail());
         Optional<User> userOptional = userRepository.findByEmail(request.getUserEmail());
         Claims claims = jwtService.verify(jwtToken);
         String superAdminEmail =(String) claims.get("email");
-        if (superAdmin.isEmpty()){
+        if (!Objects.equals(superAdminEmail, request.getAdminEmail()) && isTokenExpired(jwtToken)) {
+
+          return AuthenticationResponse.builder().error(true).error_msg("super admin is not authenticated or token is expired").build();
+        }
+        if (superAdminOpitonal.isEmpty()){
           return AuthenticationResponse.builder().error(true).error_msg("account not found for super admin")
                   .build();
 
@@ -219,15 +250,30 @@ public class SuperAdminAuthenticationService {
         if (userOptional.isEmpty()){
           return AuthenticationResponse.builder().error(true).error_msg("account not found for a user").build();
         }
-        User sAdmin = superAdmin.get();
-        if (!passwordEncoder.matches(superAdminEmail, sAdmin.getPassword()) && isTokenExpired(jwtToken)) {
-          return AuthenticationResponse.builder().error(true).error_msg("password is incorrect. Permission is denied").build();
+        User superAdmin = superAdminOpitonal.get();
+        if (Objects.equals(superAdminOpitonal, userOptional)) {
+          return AuthenticationResponse.builder().error(true).error_msg("Super admin and Receiver are the same").build();
+        }
+        if ( isTokenExpired(jwtToken)) {
+          return AuthenticationResponse.builder().error(true).error_msg("token expired please login again").build();
+        }
+        if (superAdmin.getRole() != Role.SUPERADMIN){
+          return AuthenticationResponse.builder().error(true).error_msg("this account is not super admin").build();
+        }
+        if (superAdmin.getBalance().compareTo(request.getAmount()) <= 0) {
+          return AuthenticationResponse.builder().error(true).error_msg("no balance please recharge your account").build();
+
         }
         User user = userOptional.get();
+        superAdmin.setBalance(superAdmin.getBalance().subtract(request.getAmount()));
+        user.setBalance(user.getBalance().add(request.getAmount()));
+
      BigDecimal newBalance =   user.getBalance().add(request.getAmount());
+     userRepository.save(user);
+     userRepository.save(superAdmin);
 
         var topUpData = AuthenticationResponse.TopUpResponse.builder().superAdminEmail(
-                sAdmin.getEmail()
+                superAdmin.getEmail()
         ).userEmail(user.getEmail())
                 .newBalance(newBalance)
                 .status("success").build();

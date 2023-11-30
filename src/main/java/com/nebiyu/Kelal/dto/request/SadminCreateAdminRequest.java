@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SadminCreateAdminRequest {
     String superAdminEmail;
-    String superAdminPassword;
     String adminFirstName;
     String adminLastName;
     String adminEmail;
