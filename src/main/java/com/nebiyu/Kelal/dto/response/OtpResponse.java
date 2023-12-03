@@ -12,15 +12,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OtpResponse {
-    private boolean error;
-    private String error_msg;
-    private OtpResponse.Message message;
+    private boolean success;
+    private String message;
+    private int code;
+    private Result result;
+    private long timestamp;
 
-    @lombok.Data
-    @Builder
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-
-    public static class Message {
-       private com.twilio.rest.api.v2010.account.Message message;
+    @Data
+    public static class Result {
+        private String to;
+        private String smsId;
+        private String sendResult;
     }
+//    private boolean error;
+//    private String error_msg;
+//    private OtpResponse.Message message;
+//
+//    @lombok.Data
+//    @Builder
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
+//
+//    public static class Message {
+//       private com.twilio.rest.api.v2010.account.Message message;
+//    }
 }

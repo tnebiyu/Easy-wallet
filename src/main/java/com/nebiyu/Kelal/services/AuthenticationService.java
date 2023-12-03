@@ -33,7 +33,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
-    private final TwilioService twilioService;
+  //  private final TwilioService twilioService;
     private final AuthenticationManager authenticationManager;
 
     @Async
