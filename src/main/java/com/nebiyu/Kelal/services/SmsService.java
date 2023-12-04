@@ -1,15 +1,12 @@
 package com.nebiyu.Kelal.services;
-
 import com.nebiyu.Kelal.dto.request.SmsRequest;
 import com.nebiyu.Kelal.dto.response.OtpResponse;
-import com.nebiyu.Kelal.utils.otp.OtpData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 
 

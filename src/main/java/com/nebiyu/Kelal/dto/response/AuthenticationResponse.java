@@ -43,6 +43,7 @@ public class AuthenticationResponse {
     public static class UserData {
         private String access_token;
         private String email;
+        private String phoneNumber;
         private Long user_id;
         private String password;
         private BigDecimal balance;

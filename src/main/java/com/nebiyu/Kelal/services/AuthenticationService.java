@@ -1,10 +1,7 @@
 package com.nebiyu.Kelal.services;
 
 import com.nebiyu.Kelal.configuration.JWTService;
-import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
-import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
-import com.nebiyu.Kelal.dto.request.RegisterRequest;
-import com.nebiyu.Kelal.dto.request.RegisterWithPhoneRequest;
+import com.nebiyu.Kelal.dto.request.*;
 import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
 import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
 import com.nebiyu.Kelal.model.Role;
@@ -33,7 +30,6 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
-  //  private final TwilioService twilioService;
     private final AuthenticationManager authenticationManager;
 
     @Async
@@ -90,24 +86,17 @@ public class AuthenticationService {
     @Async
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         try {
-            System.out.println("this is the request email address  " + request.getEmail());
-            System.out.println("this is the request password " + request.getPassword());
 
             Optional<User> userExist = userRepository.findByEmail(request.getEmail());
-            System.out.println("user exist   " + userExist);
 
 
             if (userExist.isEmpty()) {
-                System.out.println("user is not found" + userExist);
 
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("user is not registered, please register").build();
             }
-            System.out.println("user exists ");
             User user = userExist.get();
-            System.out.println("this is the user account " + user);
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                System.out.println("this is the password" + request.getPassword() + "and " + user.getPassword());
 
                 return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
             }
@@ -131,8 +120,6 @@ public class AuthenticationService {
                     .user_data(userData).build();
             responseBuilder.data(data).build();
 
-            System.out.println("data is " + data);
-            System.out.println("user data is " + userData);
             return responseBuilder.build();
         }
         catch (Exception e){
@@ -181,6 +168,7 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
     public AuthorizationResponse registerWithPhoneNumber(RegisterWithPhoneRequest request) {
         try {
             Optional<User> existingUser = userRepository.findByPhoneNumber(request.getPhoneNumber());
+            System.out.println("phone number " + existingUser);
 
             if (existingUser.isPresent()) {
                 return AuthorizationResponse.builder()
@@ -210,6 +198,7 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
                     .error_msg("");
             var userData = AuthorizationResponse.UserData.builder().firstName(request.getFirstname())
                     .lastName(request.getLastname())
+                    .phoneNumber(request.getPhoneNumber())
                     .balance(BigDecimal.ZERO)
                     .build();
 
@@ -224,6 +213,53 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
                     .error(true)
                     .error_msg(e.getMessage())
                     .build();
+        }
+    }
+    public AuthenticationResponse signInWithPhoneNumber(PhoneAuthRequest request){
+        try {
+
+            Optional<User> userExist = userRepository.findByPhoneNumber(request.getPhone());
+            System.out.println("user exisit? " + userExist);
+
+
+            if (userExist.isEmpty()) {
+                System.out.println("user is empty " + userExist);
+
+                return AuthenticationResponse.builder().error(true)
+                        .error_msg("user is not registered, please register").build();
+            }
+            User user = userExist.get();
+            System.out.println("user is present " + user.getPhoneNumber());
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+
+                return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
+            }
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    request.getPhone(),
+                    request.getPassword()));
+
+            var jwtToken = jwtService.generateToken(user);
+            System.out.println("jwt token is: " + jwtToken);
+
+
+
+
+            var userData = AuthenticationResponse.UserData.builder()
+                    .user_id(user.getId())
+                    .access_token(jwtToken)
+                    .phoneNumber(user.getPhoneNumber())
+                    .balance(user.getBalance())
+                    .build();
+            System.out.println("user data " + userData);
+            var data = AuthenticationResponse.Data.builder()
+                    .user_data(userData).build();
+            System.out.println("data " + data);
+
+            return AuthenticationResponse.builder().data(data).error_msg("").error(false).build();
+
+        }
+        catch (Exception e){
+            return AuthenticationResponse.builder().error(true).error_msg("Authentication Failed" + e.getMessage()).build();
         }
     }
 
