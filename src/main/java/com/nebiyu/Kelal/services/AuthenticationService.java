@@ -8,6 +8,7 @@ import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
 import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
+import com.nebiyu.Kelal.utils.otp.OtpGenerator;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -18,7 +19,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
@@ -29,6 +29,7 @@ import java.util.Optional;
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OtpGenerator otpGenerator;
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
 
@@ -175,7 +176,8 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
     @Async
     public AuthorizationResponse registerWithPhoneNumber(RegisterWithPhoneRequest request) {
         try {
-            Optional<User> existingUser = userRepository.findByPhoneNumber(request.getPhoneNumber());
+            String normalizePhoneNumber = normalizePhoneNumber(request.getPhoneNumber());
+            Optional<User> existingUser = userRepository.findByPhoneNumber(normalizePhoneNumber);
             if (!isValidPhoneNumber(request.getPhoneNumber())){
                 return AuthorizationResponse.builder().error(true)
                         .error_msg("Invalid phone number").build();
@@ -199,7 +201,7 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
             User user = User.builder()
                     .firstName(request.getFirstname())
                     .lastName(request.getLastname())
-                    .phoneNumber(request.getPhoneNumber())
+                    .phoneNumber(normalizePhoneNumber)
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.USER)
                     .balance(BigDecimal.ZERO)
@@ -228,12 +230,14 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
     }
     public AuthenticationResponse signInWithPhoneNumber(PhoneAuthRequest request){
         try {
+            String normalizePhoneNumber = normalizePhoneNumber(request.getPhone());
+            Optional<User> userExist = userRepository.findByPhoneNumber(normalizePhoneNumber);
 
-            Optional<User> userExist = userRepository.findByPhoneNumber(request.getPhone());
             if (!isValidPhoneNumber(request.getPhone())){
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("Invalid phone number").build();
             }
+
 
 
             if (userExist.isEmpty()) {
@@ -266,8 +270,44 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
             return AuthenticationResponse.builder().error(true).error_msg("Authentication Failed" + e.getMessage()).build();
         }
     }
+    public AuthenticationResponse resetPassword(ResetPasswordRequest request) {
+        try {
+            Optional<User> userExist = userRepository.findByPhoneNumber(request.getPhoneNumber());
+            System.out.println("user exists " + userExist);
+            if (userExist.isEmpty()) {
+                return AuthenticationResponse.builder().error(true)
+                        .error_msg("user is not registered, please register").build();
+            }
+            boolean isValid = otpGenerator.validateOtp(request.getPhoneNumber(), request.getOtp());
+            System.out.println("is valid : " + isValid);
+            System.out.println("request : " + request.getPhoneNumber());
+            System.out.println("request : " + request.getOtp());
+            if (!isValid) {
+                return AuthenticationResponse.builder().error(true)
+                        .error_msg("OTP is incorrect").build();
+
+            }
+
+            User user = userExist.get();
 
 
+            user.setPassword(passwordEncoder.encode(request.getNew_login_password()));
+            userRepository.save(user);
+            var user_data = AuthenticationResponse.ResetPassword.builder()
+                    .success(true)
+                    .status("password reset successfully")
+                    .newPassword(request.getNew_login_password())
+                    .build();
+            var data = AuthenticationResponse.Data.builder().resetPassword(user_data).build();
+
+
+        return AuthenticationResponse.builder().error(false)
+                .error_msg("").data(data).build();
+        } catch (Exception e) {
+           return AuthenticationResponse.builder().error(true)
+                    .error_msg("Authentication Failed" + e.getMessage()).build();
+        }
+    }
 
     private boolean isPasswordComplex(String password) {
         return password.length() >= 8 &&
@@ -277,7 +317,24 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
     }
     private boolean isValidPhoneNumber(String input) {
 
-        return input.matches("\\d{10}");
+        return input.matches("\\d{10}") || input.matches("\\d{12}");
+    }
+    public String normalizePhoneNumber(String phoneNumber) {
+        String normalizedNumber = phoneNumber.replaceAll("[^0-9]", "");
+
+        if (isValidPhoneNumber(normalizedNumber)) {
+            if (normalizedNumber.startsWith("09")) {
+                normalizedNumber = "251" + normalizedNumber.substring(1);
+            } else if (normalizedNumber.startsWith("251")) {
+            } else {
+
+                throw new IllegalArgumentException("Unsupported phone number format");
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid phone number");
+        }
+
+        return normalizedNumber;
     }
     private boolean isValidEmail(String input) {
 

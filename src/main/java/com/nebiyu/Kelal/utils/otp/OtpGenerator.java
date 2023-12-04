@@ -15,6 +15,7 @@ public class OtpGenerator {
     public static OtpData generateOtp(String phoneNumber) {
 
         String otp = generateRandomOtp(OTP_LENGTH);
+        System.out.println("otp is : " + otp);
 
         long expirationTime = System.currentTimeMillis() + (EXPIRATION_TIME_SECONDS * 1000);
         OtpData otpData = new OtpData(otp, expirationTime);

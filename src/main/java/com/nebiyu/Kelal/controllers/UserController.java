@@ -64,6 +64,14 @@ public class UserController {
         }
         return ResponseEntity.ok().body(response);
     }
+    @PostMapping("/reset_password_via_otp")
+    public ResponseEntity<AuthenticationResponse> resetPasswordViaOtp(@RequestBody ResetPasswordRequest request){
+        AuthenticationResponse response = service.resetPassword(request);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
+    }
 
 }
 

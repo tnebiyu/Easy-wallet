@@ -35,6 +35,7 @@ public class AuthenticationResponse {
         private AuthenticationResponse.ResponseOtp responseOtp;
         private AuthenticationResponse.VerifyOtp verifyOtp;
         private AuthenticationResponse.AdminCreated adminCreated;
+        private AuthenticationResponse.ResetPassword resetPassword;
     }
 
     @lombok.Data
@@ -107,6 +108,16 @@ public class AuthenticationResponse {
         private String adminLastName;
         private String createdBy;
         private Date timeStamp;
+
+    }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ResetPassword {
+        private boolean success;
+        private String status;
+        private String newPassword;
+
 
     }
 

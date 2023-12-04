@@ -35,7 +35,7 @@ public class ApplicationConfig {
     }
     private boolean isValidPhoneNumber(String input) {
 
-        return input.matches("\\d{10}");
+        return input.matches("\\d{10}") || input.matches("\\d{12}");
     }
 
     private boolean isValidEmail(String input) {
