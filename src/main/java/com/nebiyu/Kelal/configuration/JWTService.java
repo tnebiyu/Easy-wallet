@@ -33,9 +33,19 @@ public class JWTService {
         return generateToken(new HashMap<>(), user);
 
     }
+    public String generateTokenPhoneNumber(User user) {
+        return generateTokenPhoneNumber(new HashMap<>(), user);
+    }
 
+    private  String generateTokenPhoneNumber(Map<String, Object> extractClaims, User user) {
 
-//
+        extractClaims.put("phoneNumber", user.getPhoneNumber());
+        extractClaims.put("id", user.getId());
+        return Jwts.builder().setClaims(extractClaims).setSubject(user.getPhoneNumber()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 24 * 60)).signWith(
+                getSignInKey(), SignatureAlgorithm.HS256
+        ).compact();
+    }
+
 
     public String generateToken(Map<String, Object> extractClaims, User user
     ) {

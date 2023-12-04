@@ -28,13 +28,3 @@ public class SecurityConfiguration  {
         return http.build();
     }
 }
-
-//    @Bean
-//    protected void Configure(HttpSecurity http) throws Exception {
-//        http.csrf().disable().authorizeHttpRequests()
-//                .requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().permitAll()
-//
-//                .and()
-//                .httpBasic();
-//    }
-//}

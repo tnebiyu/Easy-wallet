@@ -36,6 +36,10 @@ public class AuthenticationService {
     public AuthorizationResponse register(RegisterRequest request) {
         try {
             Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+            if (!isValidEmail(request.getEmail())){
+                return AuthorizationResponse.builder().error(true)
+                        .error_msg("Invalid email").build();
+            }
 
             if (existingUser.isPresent()) {
                 return AuthorizationResponse.builder()
@@ -88,6 +92,10 @@ public class AuthenticationService {
         try {
 
             Optional<User> userExist = userRepository.findByEmail(request.getEmail());
+            if (!isValidEmail(request.getEmail())){
+                return AuthenticationResponse.builder().error(true)
+                        .error_msg("Invalid email").build();
+            }
 
 
             if (userExist.isEmpty()) {
@@ -168,7 +176,10 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
     public AuthorizationResponse registerWithPhoneNumber(RegisterWithPhoneRequest request) {
         try {
             Optional<User> existingUser = userRepository.findByPhoneNumber(request.getPhoneNumber());
-            System.out.println("phone number " + existingUser);
+            if (!isValidPhoneNumber(request.getPhoneNumber())){
+                return AuthorizationResponse.builder().error(true)
+                        .error_msg("Invalid phone number").build();
+            }
 
             if (existingUser.isPresent()) {
                 return AuthorizationResponse.builder()
@@ -219,17 +230,18 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
         try {
 
             Optional<User> userExist = userRepository.findByPhoneNumber(request.getPhone());
-            System.out.println("user exisit? " + userExist);
+            if (!isValidPhoneNumber(request.getPhone())){
+                return AuthenticationResponse.builder().error(true)
+                        .error_msg("Invalid phone number").build();
+            }
 
 
             if (userExist.isEmpty()) {
-                System.out.println("user is empty " + userExist);
 
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("user is not registered, please register").build();
             }
             User user = userExist.get();
-            System.out.println("user is present " + user.getPhoneNumber());
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 
                 return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
@@ -239,22 +251,14 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
                     request.getPassword()));
 
             var jwtToken = jwtService.generateToken(user);
-            System.out.println("jwt token is: " + jwtToken);
-
-
-
-
             var userData = AuthenticationResponse.UserData.builder()
                     .user_id(user.getId())
                     .access_token(jwtToken)
                     .phoneNumber(user.getPhoneNumber())
                     .balance(user.getBalance())
                     .build();
-            System.out.println("user data " + userData);
             var data = AuthenticationResponse.Data.builder()
                     .user_data(userData).build();
-            System.out.println("data " + data);
-
             return AuthenticationResponse.builder().data(data).error_msg("").error(false).build();
 
         }
@@ -270,6 +274,14 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
                 password.matches(".*[a-zA-Z].*") &&
                 password.matches(".*\\d.*") &&
                 password.matches(".*[!@#$%^&*()-_=+\\[\\]{}|;:'\",.<>/?].*");
+    }
+    private boolean isValidPhoneNumber(String input) {
+
+        return input.matches("\\d{10}");
+    }
+    private boolean isValidEmail(String input) {
+
+        return input.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
     }
 
     public boolean isTokenExpired(String jwtToken) {
