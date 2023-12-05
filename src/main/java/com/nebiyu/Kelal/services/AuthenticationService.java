@@ -273,21 +273,16 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
     public AuthenticationResponse resetPassword(ResetPasswordRequest request) {
         try {
             Optional<User> userExist = userRepository.findByPhoneNumber(request.getPhoneNumber());
-            System.out.println("user exists " + userExist);
             if (userExist.isEmpty()) {
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("user is not registered, please register").build();
             }
             boolean isValid = otpGenerator.validateOtp(request.getPhoneNumber(), request.getOtp());
-            System.out.println("is valid : " + isValid);
-            System.out.println("request : " + request.getPhoneNumber());
-            System.out.println("request : " + request.getOtp());
             if (!isValid) {
                 return AuthenticationResponse.builder().error(true)
                         .error_msg("OTP is incorrect").build();
 
             }
-
             User user = userExist.get();
 
 

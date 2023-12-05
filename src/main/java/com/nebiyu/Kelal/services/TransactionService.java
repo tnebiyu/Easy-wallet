@@ -3,16 +3,14 @@ package com.nebiyu.Kelal.services;
 
 import com.nebiyu.Kelal.configuration.JWTService;
 //import com.nebiyu.Kelal.kafka.kafkaproducer.KafkaProducerService;
+import com.nebiyu.Kelal.dto.request.TransferRequestWithPhone;
+import com.nebiyu.Kelal.dto.response.*;
 import com.nebiyu.Kelal.model.TransactionModel;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.TransactionRepository;
 import com.nebiyu.Kelal.repositories.UserRepository;
 import com.nebiyu.Kelal.dto.request.TransferRequestWithEmail;
 import com.nebiyu.Kelal.dto.request.TransferRequestWithId;
-import com.nebiyu.Kelal.dto.response.RecentTransactionResponse;
-import com.nebiyu.Kelal.dto.response.TransactionHistoryResponse;
-import com.nebiyu.Kelal.dto.response.TransactionResponseId;
-import com.nebiyu.Kelal.dto.response.TransferResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -29,6 +27,8 @@ public class TransactionService {
     private UserRepository userRepository;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private SmsService smsService;
 //    @Autowired
 
    // private KafkaProducerService kafkaProducer;
@@ -111,7 +111,7 @@ transactionRepository.save(transaction);
     public TransactionResponseId transferMoneyById(TransferRequestWithId request, String jwtToken) {
         try {
             Claims claims = jwtService.verify(jwtToken);
-            String senderId =(String) claims.get("id");
+            String senderId =(String) claims.get("email");
 
 
             if (!Objects.equals(senderId, request.getSenderId()) && isTokenExpired(jwtToken)) {
@@ -157,6 +157,67 @@ transactionRepository.save(transaction);
         } catch (Exception e) {
 
             return TransactionResponseId.builder().error(true).error_msg(e.toString()).build();
+
+        }
+    }
+    @Transactional
+    @Async
+    public TransactionResponseViaPhone transferMoneyViaPhone(TransferRequestWithPhone request, String jwtToken) {
+        try {
+            Claims claims = jwtService.verify(jwtToken);
+            String senderPhone =(String) claims.get("email");
+
+
+            if (!Objects.equals(senderPhone, request.getSenderPhone()) && isTokenExpired(jwtToken)) {
+
+                return TransactionResponseViaPhone.builder().error(true).error_msg("User is not authenticated or token is expired").build();
+            }
+
+            Optional<User> sender = userRepository.findByPhoneNumber(request.getSenderPhone());
+            Optional<User> receiver = userRepository.findByPhoneNumber(request.getReceiverPhone());
+            if (sender.isEmpty() || receiver.isEmpty()){
+                return TransactionResponseViaPhone.builder().error(true).error_msg("Sender or Receiver are not found").build();
+            }
+
+            if (Objects.equals(sender, receiver)) {
+                return TransactionResponseViaPhone.builder().error(true).error_msg("Sender and Receiver are the same").build();
+            }
+
+            if (sender.get().getBalance().compareTo(request.getAmount()) <= 0) {
+
+                return TransactionResponseViaPhone.builder().error(true).error_msg("no balance please recharge your account").build();
+            }
+            sender.get().setBalance(sender.get().getBalance().subtract(request.getAmount()));
+            receiver.get().setBalance(receiver.get().getBalance().add(request.getAmount()));
+            var userData = TransactionResponseViaPhone.UserData.builder()
+                    .amount(request.getAmount()).receiverPhone(request.getReceiverPhone())
+                    .timestamp(new Date()).build();
+
+
+            TransactionModel transaction = TransactionModel.builder().sender(sender.get())
+                    .receiver(receiver.get())
+                    .amount(request.getAmount())
+                    .timestamp(new Date())
+                    .build();
+            userRepository.save(sender.get());
+            userRepository.save(receiver.get());
+            transactionRepository.save(transaction);
+            smsService.sendNotify(request.getSenderPhone(), " amount " + request.getAmount() +
+                    " is transferred to " + transaction.getReceiver().getPhoneNumber() + " transaction id " + transaction.getId() +
+                    " at the date of " + transaction.getTimestamp() + " your current balance is " + sender.get().getBalance()
+                    );
+            smsService.sendNotify(request.getReceiverPhone(), " amount " + request.getAmount() +
+                    " is transferred to your account" + " transaction id " + transaction.getId() +
+                    " at the date of " + transaction.getTimestamp() + " your current balance is " + receiver.get().getBalance());
+            // kafkaProducer.sendTransactionMessage(transactionResponseSenderUserData);
+
+
+            var data = TransactionResponseViaPhone.Data.builder().user_data(userData).build();
+            return TransactionResponseViaPhone.builder().data(data).error(false).error_msg("").build();
+
+        } catch (Exception e) {
+
+            return TransactionResponseViaPhone.builder().error(true).error_msg(e.toString()).build();
 
         }
     }
@@ -263,6 +324,27 @@ catch (Exception e){
 }
 
 }
+    private boolean isValidPhoneNumber(String input) {
+
+        return input.matches("\\d{10}") || input.matches("\\d{12}");
+    }
+    public String normalizPhoneNumber(String phoneNumber) {
+        String normalizedNumber = phoneNumber.replaceAll("[^0-9]", "");
+
+        if (isValidPhoneNumber(normalizedNumber)) {
+            if (normalizedNumber.startsWith("09")) {
+                normalizedNumber = "251" + normalizedNumber.substring(1);
+            } else if (normalizedNumber.startsWith("251")) {
+            } else {
+
+                throw new IllegalArgumentException("Unsupported phone number format");
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid phone number");
+        }
+
+        return normalizedNumber;
+    }
     public boolean isTokenExpired(String jwtToken) {
         try {
             Claims claims = jwtService.verify(jwtToken);

@@ -1,5 +1,6 @@
 package com.nebiyu.Kelal.services;
 import com.nebiyu.Kelal.dto.request.SmsRequest;
+import com.nebiyu.Kelal.dto.response.NotifyResponse;
 import com.nebiyu.Kelal.dto.response.OtpResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -37,6 +38,19 @@ public class SmsService {
             ResponseEntity<OtpResponse> responseEntity = restTemplate.postForEntity(apiUrl, requestEntity, OtpResponse.class);
 
             return responseEntity.getBody();
+    }
+    public NotifyResponse sendNotify(String to, String message){
+        String from = "Ariob";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        SmsRequest smsRequest = new SmsRequest(accessKey, secretKey, from, to, message);
+        HttpEntity<SmsRequest> requestEntity = new HttpEntity<>(smsRequest, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<NotifyResponse> responseEntity = restTemplate.postForEntity(apiUrl, requestEntity, NotifyResponse.class);
+
+        return responseEntity.getBody();
     }
 
 }

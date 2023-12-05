@@ -1,11 +1,9 @@
 package com.nebiyu.Kelal.controllers;
+import com.nebiyu.Kelal.dto.request.TransferRequestWithPhone;
+import com.nebiyu.Kelal.dto.response.*;
 import com.nebiyu.Kelal.repositories.UserRepository;
 import com.nebiyu.Kelal.dto.request.TransferRequestWithEmail;
 import com.nebiyu.Kelal.dto.request.TransferRequestWithId;
-import com.nebiyu.Kelal.dto.response.RecentTransactionResponse;
-import com.nebiyu.Kelal.dto.response.TransactionHistoryResponse;
-import com.nebiyu.Kelal.dto.response.TransactionResponseId;
-import com.nebiyu.Kelal.dto.response.TransferResponse;
 import com.nebiyu.Kelal.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -15,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 
-@RequestMapping("${TRANSACTION_CLASS_REQUEST_MAPPING}")
+@RequestMapping("/api/v1/user/transactions")
 public class TransactionController {
 
 
@@ -28,7 +26,7 @@ public class TransactionController {
 
 
 
-    @PostMapping("${TRANSFER_EMAIL}")
+    @PostMapping("/transfer")
     public ResponseEntity<TransferResponse> transferMoney(
             @RequestHeader("Authorization") String token,
         @RequestBody TransferRequestWithEmail request
@@ -47,9 +45,18 @@ return ResponseEntity.ok().body(response);
 
 
     }
-    @PostMapping("${TRANSFER_WITH_ID}")
+    @PostMapping("/transactionWithId")
     public ResponseEntity<TransactionResponseId> tranferWithId(@RequestBody TransferRequestWithId request, @RequestHeader("Authorization") String token){
         TransactionResponseId response = service.transferMoneyById(request, token);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
+
+    }
+    @PostMapping("/transaction_via_phone")
+    public ResponseEntity<TransactionResponseViaPhone> tranferWithPhone(@RequestBody TransferRequestWithPhone request, @RequestHeader("Authorization") String token){
+        TransactionResponseViaPhone response = service.transferMoneyViaPhone(request, token);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
         }
