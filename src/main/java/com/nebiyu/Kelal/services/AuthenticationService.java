@@ -320,6 +320,8 @@ return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).buil
         if (isValidPhoneNumber(normalizedNumber)) {
             if (normalizedNumber.startsWith("09")) {
                 normalizedNumber = "251" + normalizedNumber.substring(1);
+            } else if (normalizedNumber.startsWith("9")) {
+                normalizedNumber = "251" + normalizedNumber;
             } else if (normalizedNumber.startsWith("251")) {
             } else {
 
