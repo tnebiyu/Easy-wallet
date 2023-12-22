@@ -29,9 +29,6 @@ public class TransactionService {
     private TransactionRepository transactionRepository;
     @Autowired
     private SmsService smsService;
-//    @Autowired
-
-   // private KafkaProducerService kafkaProducer;
     @Autowired
     private JWTService jwtService;
     @Transactional

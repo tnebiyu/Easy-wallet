@@ -14,7 +14,7 @@ public class OtpGenerator {
 
     public static OtpData generateOtp(String phoneNumber) {
 
-        String otp = generateRandomOtp(OTP_LENGTH);
+        String otp = generateRandomOtp();
         System.out.println("otp is : " + otp);
 
         long expirationTime = System.currentTimeMillis() + (EXPIRATION_TIME_SECONDS * 1000);
@@ -24,11 +24,11 @@ public class OtpGenerator {
         return otpData;
     }
 
-    private static String generateRandomOtp(int length) {
+    private static String generateRandomOtp() {
         Random random = new Random();
         StringBuilder otp = new StringBuilder();
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < OtpGenerator.OTP_LENGTH; i++) {
             otp.append(random.nextInt(10));
         }
 

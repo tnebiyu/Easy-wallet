@@ -5,9 +5,7 @@ import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
 import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
 import com.nebiyu.Kelal.dto.request.RegisterRequest;
 import com.nebiyu.Kelal.dto.request.TopUpRequest;
-import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
-import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
-import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
+import com.nebiyu.Kelal.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +18,9 @@ public class AdminController{
     private final AdminService adminService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthorizationResponse> register(@RequestBody RegisterRequest request) {
-        AuthorizationResponse response = adminService.registerAdmin(request);
-        System.out.println("this is the user request " + request);
-        System.out.println("this is the response  " + response);
-        System.out.println("admin is going to register");
+    public ResponseEntity<Response> register(@RequestBody RegisterRequest request) {
+        Response response = adminService.registerAdmin(request);
+
 
         if (response.isError()) {
             System.out.println("admin error occured");
@@ -32,7 +28,6 @@ public class AdminController{
             return ResponseEntity.badRequest()
                     .body(response);
         } else {
-            System.out.println("admin error is not occurred");
             return ResponseEntity.ok()
                     .body(response);
         }
@@ -40,8 +35,8 @@ public class AdminController{
 
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-        AuthenticationResponse response = adminService.authenticateAdmin(request);
+    public ResponseEntity<Response> authenticate(@RequestBody AuthenticationRequest request){
+        Response response = adminService.authenticateAdmin(request);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
         }
@@ -50,8 +45,8 @@ public class AdminController{
         }
     }
     @PostMapping("/top_up_user")
-    public ResponseEntity<AuthenticationResponse> topUpUser(@RequestBody TopUpRequest request, @RequestHeader("Authorization") String jwtToken){
-        AuthenticationResponse response = adminService.topUpUser(request, jwtToken);
+    public ResponseEntity<Response> topUpUser(@RequestBody TopUpRequest request, @RequestHeader("Authorization") String jwtToken){
+        Response response = adminService.topUpUser(request, jwtToken);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
 
@@ -59,8 +54,8 @@ public class AdminController{
         return ResponseEntity.ok().body(response);
     }
     @PostMapping("/update_admin_password")
-    public ResponseEntity<ChangePasswordResponse> updateSuperAdminPassword(@RequestBody ChangePasswordRequest request, @RequestHeader("Authorization") String jwtToken){
-        ChangePasswordResponse response = adminService.changePassword(request, jwtToken);
+    public ResponseEntity<Response> updateSuperAdminPassword(@RequestBody ChangePasswordRequest request, @RequestHeader("Authorization") String jwtToken){
+        Response response = adminService.changePassword(request, jwtToken);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
         }

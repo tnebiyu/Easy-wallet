@@ -2,7 +2,7 @@ package com.nebiyu.Kelal.controllers;
 
 import com.nebiyu.Kelal.dto.request.OtpRequest;
 import com.nebiyu.Kelal.dto.request.OtpValidationRequest;
-import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
+import com.nebiyu.Kelal.dto.response.Response;
 import com.nebiyu.Kelal.dto.response.OtpResponse;
 import com.nebiyu.Kelal.services.SmsService;
 import com.nebiyu.Kelal.utils.otp.OtpData;
@@ -33,26 +33,26 @@ public class SmsController {
         return ResponseEntity.badRequest().body(response);
     }
     @PostMapping("/validate-otp")
-    public ResponseEntity<AuthenticationResponse> validateOtp(@RequestBody OtpValidationRequest validationRequest) {
+    public ResponseEntity<Response> validateOtp(@RequestBody OtpValidationRequest validationRequest) {
 
 
         boolean isValid = otpGenerator.validateOtp(validationRequest.getPhone(), validationRequest.getOtp());
 
         if (isValid) {
-            var verifyOtp =AuthenticationResponse.VerifyOtp
+            var verifyOtp = Response.VerifyOtp
                     .builder().isCorrect(true)
                     .otp(validationRequest.getOtp())
                     .phone(validationRequest.getPhone())
                     .build();
-            var data = AuthenticationResponse.Data
+            var data = Response.Data
                     .builder().verifyOtp(verifyOtp).build();
-            AuthenticationResponse response = AuthenticationResponse.builder()
+            Response response = Response.builder()
                     .error(false)
                     .error_msg("")
                     .data(data).build();
             return ResponseEntity.ok().body(response);
         } else {
-            AuthenticationResponse response = AuthenticationResponse.builder()
+            Response response = Response.builder()
                     .error(true)
                     .error_msg("Invalid OTP or expired").build();
             return ResponseEntity.badRequest().body(response);

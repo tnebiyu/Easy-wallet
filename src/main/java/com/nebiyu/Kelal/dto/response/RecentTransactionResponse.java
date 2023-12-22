@@ -14,9 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class RecentTransactionResponse {
     private Data data;
-
-
-
     private boolean error;
     private String error_msg;
 

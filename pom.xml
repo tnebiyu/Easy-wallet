@@ -27,8 +27,6 @@
 			<version>2.2.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.twilio.sdk/twilio -->
-
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-client</artifactId>

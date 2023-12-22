@@ -18,8 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthenticationResponse {
-    private AuthenticationResponse.Data data;
+public class Response {
+    private Response.Data data;
     private boolean error;
     private String error_msg;
 
@@ -29,13 +29,15 @@ public class AuthenticationResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
 
     public static class Data {
-        private AuthenticationResponse.UserData user_data;
-        private AuthenticationResponse.AdminResponse adminResponse;
-        private AuthenticationResponse.TopUpResponse topUpResponse;
-        private AuthenticationResponse.ResponseOtp responseOtp;
-        private AuthenticationResponse.VerifyOtp verifyOtp;
-        private AuthenticationResponse.AdminCreated adminCreated;
-        private AuthenticationResponse.ResetPassword resetPassword;
+        private Response.UserData user_data;
+        private Response.AdminResponse adminResponse;
+        private Response.TopUpResponse topUpResponse;
+        private Response.ResponseOtp responseOtp;
+        private Response.VerifyOtp verifyOtp;
+        private Response.AdminCreated adminCreated;
+        private Response.ResetPassword resetPassword;
+        private Response.AuthorizationResponse authorizationResponse;
+        private Response.ChangePassword changePassword;
     }
 
     @lombok.Data
@@ -77,7 +79,7 @@ public class AuthenticationResponse {
         private String status;
         private String email;
         private String password;
-        private BigDecimal newPassword;
+        private String newPassword;
     }
     @lombok.Data
     @Builder
@@ -117,6 +119,20 @@ public class AuthenticationResponse {
         private boolean success;
         private String status;
         private String newPassword;
+
+
+    }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class AuthorizationResponse {
+        private String email;
+        private Long user_id;
+        private String firstName;
+        private String lastName;
+        private String phoneNumber;
+        private String password;
+        private BigDecimal balance;
 
 
     }

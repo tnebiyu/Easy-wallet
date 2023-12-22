@@ -7,9 +7,7 @@ import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
 import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
 import com.nebiyu.Kelal.dto.request.RegisterRequest;
 import com.nebiyu.Kelal.dto.request.TopUpRequest;
-import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
-import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
-import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
+import com.nebiyu.Kelal.dto.response.Response;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -35,12 +33,12 @@ public class AdminService {
     private final AuthenticationManager authenticationManager;
 
     @Async
-  public  AuthorizationResponse registerAdmin(RegisterRequest request){
+  public  Response registerAdmin(RegisterRequest request){
         try {
             Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
 
             if (existingUser.isPresent()) {
-                return AuthorizationResponse.builder()
+                return Response.builder()
                         .error(true)
                         .error_msg("email already exists")
                         .build();
@@ -48,7 +46,7 @@ public class AdminService {
 
             String password = request.getPassword();
             if (!isPasswordComplex(password)) {
-                return AuthorizationResponse.builder()
+                return Response.builder()
                         .error(true)
                         .error_msg("invalid_password")
                         .build();
@@ -63,100 +61,100 @@ public class AdminService {
                     .balance(BigDecimal.ZERO)
                     .build();
             userRepository.save(admin);
-            var responseBuilder = AuthorizationResponse.builder().error(false)
+            var responseBuilder = Response.builder().error(false)
                     .error_msg("");
-            var userData = AuthorizationResponse.UserData.builder().firstName(request.getFirstname())
+            var userData = Response.AuthorizationResponse.builder().firstName(request.getFirstname())
                     .lastName(request.getLastname()).email(request.getEmail())
                     .balance(BigDecimal.ZERO)
                     .build();
 
-            var data = AuthorizationResponse.Data.builder()
-                    .user_data(userData).build();
+            var data = Response.Data.builder()
+                    .authorizationResponse(userData).build();
             responseBuilder.data(data).build();
 
 
-            return AuthorizationResponse.builder().data(data).error(false).error_msg("").build();
+            return Response.builder().data(data).error(false).error_msg("").build();
         } catch (Exception e) {
-            return AuthorizationResponse.builder()
+            return Response.builder()
                     .error(true)
                     .error_msg(e.getMessage())
                     .build();
         }
 
     }
-public ChangePasswordResponse changePassword(ChangePasswordRequest request, String jwtToken){
+public Response changePassword(ChangePasswordRequest request, String jwtToken){
     try{
         Optional<User> userExist = userRepository.findByEmail(request.getEmail());
         if (userExist.isEmpty()) {
-            return ChangePasswordResponse.builder().error(true)
+            return Response.builder().error(true)
                     .error_msg("user is not registered, please register").build();
         }
         Claims claims = jwtService.verify(jwtToken);
         String email =(String) claims.get("email");
         if (!Objects.equals(email, request.getEmail()) && isTokenExpired(jwtToken)) {
 
-            return ChangePasswordResponse.builder().error(true).error_msg("User is not authenticated or token is expired").build();
+            return Response.builder().error(true).error_msg("User is not authenticated or token is expired").build();
         }
         User admin = userExist.get();
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-            return ChangePasswordResponse.builder().error(true).error_msg("password is incorrect").build();
+            return Response.builder().error(true).error_msg("password is incorrect").build();
         }
         admin.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(admin);
-        var user_data = ChangePasswordResponse.ChangePassword.builder()
+        var user_data = Response.ChangePassword.builder()
                 .email(admin.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .newPassword(passwordEncoder.encode(request.getNewPassword()))
                 .build();
-        var data= ChangePasswordResponse.Data.builder()
+        var data= Response.Data.builder()
                 .changePassword(user_data).build();
-        return ChangePasswordResponse.builder().error(false)
+        return Response.builder().error(false)
                 .error_msg("").data(data).build();
 
 
     }
     catch (Exception e){
 
-        return ChangePasswordResponse.builder().error(true).error_msg(e.toString()).build();
+        return Response.builder().error(true).error_msg(e.toString()).build();
 
     }
 
 }
     @Async
-    public AuthenticationResponse authenticateAdmin(AuthenticationRequest request) {
+    public Response authenticateAdmin(AuthenticationRequest request) {
         try {
             Optional<User> adminExist = userRepository.findByEmail(request.getEmail());
 
             if (adminExist.isEmpty()) {
-                return AuthenticationResponse.builder().error(true)
+                return Response.builder().error(true)
                         .error_msg("admin is not registered, please register").build();
             }
 
             User admin = adminExist.get();
             if (admin.getRole() != Role.ADMIN){
-                return AuthenticationResponse.builder()
+                return Response.builder()
                         .error(true).error_msg("this email is not an admin").build();
             }
             if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-                return AuthenticationResponse.builder().error(true).error_msg("password is incorrect").build();
+                return Response.builder().error(true).error_msg("password is incorrect").build();
             }
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     request.getEmail(),
                     request.getPassword()));
             var jwtToken = jwtService.generateToken(admin);
 
-            var responseBuilder = AuthenticationResponse.builder()
+            var responseBuilder = Response.builder()
                     .error(false)
                     .error_msg("");
 
 
-            var userData = AuthenticationResponse.UserData.builder()
+            var userData = Response.UserData.builder()
                     .user_id(admin.getId())
                     .access_token(jwtToken)
                     .email(admin.getEmail())
                     .balance(admin.getBalance())
                     .build();
-            var data = AuthenticationResponse.Data.builder()
+            var data = Response.Data.builder()
                     .user_data(userData).build();
             responseBuilder.data(data).build();
 
@@ -164,11 +162,11 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
             return responseBuilder.build();
         }
         catch (Exception e){
-            return AuthenticationResponse.builder().error(true).error_msg("Authentication Failed" + e.getMessage()).build();
+            return Response.builder().error(true).error_msg("Authentication Failed" + e.getMessage()).build();
         }
     }
     @Async
-    public AuthenticationResponse topUpUser(TopUpRequest request, String jwtToken){
+    public Response topUpUser(TopUpRequest request, String jwtToken){
         try{
 
             Optional<User> adminOptional = userRepository.findByEmail(request.getAdminEmail());
@@ -178,26 +176,26 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
             if (!Objects.equals(adminEmail, request.getAdminEmail()) && isTokenExpired(jwtToken)) {
                // System.out.println("admin email " + adminEmail + "request admin email " + request.getAdminEmail() + "jwt token " + isTokenExpired(jwtToken) + jwtToken);
 
-                return AuthenticationResponse.builder().error(true).error_msg("admin is not authenticated or token is expired").build();
+                return Response.builder().error(true).error_msg("admin is not authenticated or token is expired").build();
             }
             if (adminOptional.isEmpty()){
-                return AuthenticationResponse.builder().error(true).error_msg("account not found for super admin")
+                return Response.builder().error(true).error_msg("account not found for super admin")
                         .build();
 
             }
             if (userOptional.isEmpty()){
-                return AuthenticationResponse.builder().error(true).error_msg("account not found for a user").build();
+                return Response.builder().error(true).error_msg("account not found for a user").build();
             }
             if (Objects.equals(adminOptional, userOptional)) {
-                return AuthenticationResponse.builder().error(true).error_msg("Sender and Receiver are the same").build();
+                return Response.builder().error(true).error_msg("Sender and Receiver are the same").build();
             }
             User admin = adminOptional.get();
             User user = userOptional.get();
             if (admin.getRole() != Role.ADMIN){
-                return AuthenticationResponse.builder().error(true).error_msg("this account is not admin").build();
+                return Response.builder().error(true).error_msg("this account is not admin").build();
             }
             if (admin.getBalance().compareTo(request.getAmount()) <= 0) {
-                return AuthenticationResponse.builder().error(true)
+                return Response.builder().error(true)
                         .error_msg("no balance please recharge your account")
                         .build();
 
@@ -207,23 +205,23 @@ public ChangePasswordResponse changePassword(ChangePasswordRequest request, Stri
 
 
             if (isTokenExpired(jwtToken)) {
-                return AuthenticationResponse.builder().error(true).error_msg("token expired please login again").build();
+                return Response.builder().error(true).error_msg("token expired please login again").build();
             }
             userRepository.save(admin);
             userRepository.save(user);
 
-            var topUpData = AuthenticationResponse.TopUpResponse.builder().superAdminEmail(
+            var topUpData = Response.TopUpResponse.builder().superAdminEmail(
                             admin.getEmail()
                     ).userEmail(user.getEmail())
                     .newBalance(user.getBalance())
                     .status("success").build();
-            var Data = AuthenticationResponse.Data.builder().topUpResponse(topUpData)
+            var Data = Response.Data.builder().topUpResponse(topUpData)
                     .build();
-            return AuthenticationResponse.builder().error(false)
+            return Response.builder().error(false)
                     .error_msg("").data(Data).build();
         }
         catch (Exception e){
-            return AuthenticationResponse.builder().error(true).error_msg(e.toString()).build();
+            return Response.builder().error(true).error_msg(e.toString()).build();
         }
 
 

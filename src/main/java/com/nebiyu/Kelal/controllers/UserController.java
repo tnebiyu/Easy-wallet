@@ -1,8 +1,6 @@
 package com.nebiyu.Kelal.controllers;
 import com.nebiyu.Kelal.dto.request.*;
-import com.nebiyu.Kelal.dto.response.AuthenticationResponse;
-import com.nebiyu.Kelal.dto.response.AuthorizationResponse;
-import com.nebiyu.Kelal.dto.response.ChangePasswordResponse;
+import com.nebiyu.Kelal.dto.response.Response;
 import com.nebiyu.Kelal.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +13,8 @@ public class UserController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthorizationResponse> register(@RequestBody RegisterRequest request) {
-        AuthorizationResponse response = service.register(request);
+    public ResponseEntity<Response> register(@RequestBody RegisterRequest request) {
+        Response response = service.register(request);
 
         if (response.isError()) {
             return ResponseEntity.badRequest()
@@ -29,8 +27,8 @@ public class UserController {
 
 
     @PostMapping("${LOGIN_API_CALL}")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-      AuthenticationResponse response = service.authenticate(request);
+    public ResponseEntity<Response> authenticate(@RequestBody AuthenticationRequest request){
+      Response response = service.authenticate(request);
       if (response.isError()){
           return ResponseEntity.badRequest().body(response);
       }
@@ -40,8 +38,8 @@ public class UserController {
     }
 
     @PostMapping("/change_user_password")
-    public ResponseEntity<ChangePasswordResponse> changeUserPassword(@RequestBody ChangePasswordRequest request, @RequestHeader("Auhorization") String jwtToken){
-        ChangePasswordResponse response = service.changePassword(request, jwtToken);
+    public ResponseEntity<Response> changeUserPassword(@RequestBody ChangePasswordRequest request, @RequestHeader("Auhorization") String jwtToken){
+        Response response = service.changePassword(request, jwtToken);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
         }
@@ -49,24 +47,24 @@ public class UserController {
     }
 
     @PostMapping("/signup_by_phone_number")
-    public ResponseEntity<AuthorizationResponse> signupByPhoneNumber(@RequestBody RegisterWithPhoneRequest request){
-        AuthorizationResponse response = service.registerWithPhoneNumber(request);
+    public ResponseEntity<Response> signupByPhoneNumber(@RequestBody RegisterWithPhoneRequest request){
+        Response response = service.registerWithPhoneNumber(request);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
         }
         return ResponseEntity.ok().body(response);
     }
     @PostMapping("/signIn_by_phone_number")
-    public ResponseEntity<AuthenticationResponse> signInByPhoneNumber(@RequestBody PhoneAuthRequest request){
-        AuthenticationResponse response = service.signInWithPhoneNumber(request);
+    public ResponseEntity<Response> signInByPhoneNumber(@RequestBody PhoneAuthRequest request){
+        Response response = service.signInWithPhoneNumber(request);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
         }
         return ResponseEntity.ok().body(response);
     }
     @PostMapping("/reset_password_via_otp")
-    public ResponseEntity<AuthenticationResponse> resetPasswordViaOtp(@RequestBody ResetPasswordRequest request){
-        AuthenticationResponse response = service.resetPassword(request);
+    public ResponseEntity<Response> resetPasswordViaOtp(@RequestBody ResetPasswordRequest request){
+        Response response = service.resetPassword(request);
         if (response.isError()){
             return ResponseEntity.badRequest().body(response);
         }

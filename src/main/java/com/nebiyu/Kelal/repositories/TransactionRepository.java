@@ -12,12 +12,4 @@ import java.util.Optional;
 public interface TransactionRepository extends JpaRepository<TransactionModel, Long> {
     @Query("SELECT t FROM TransactionModel t WHERE t.sender.id = :userId OR t.receiver.id = :userId")
     List<TransactionModel> findAllTransactionsForUser(@Param("userId") Long userId);
-
-//    Optional<User> findByEmail(@Param("email") String email);
-//    List<TransactionModel> findBySenderOrReceiver(Optional<User> sender, Optional<User> receiver);
-//    List<TransactionModel> findByReceiver_Id(Long receiverId);
-//    Optional<TransactionModel> findBySenderEmail(String email);
-//   List<TransactionModel> findBySenderId(long id);
-//    List<TransactionModel> findBySender(String senderEmail);
-//    List<TransactionModel> findByReceiver(String receiverEmail);
 }

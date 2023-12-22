@@ -1,6 +1,4 @@
 package com.nebiyu.Kelal.configuration;
-
-import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
