@@ -1,7 +1,5 @@
 package com.nebiyu.Kelal.dto.response;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.nebiyu.Kelal.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
-
-
 @Data
 @Builder
 @AllArgsConstructor

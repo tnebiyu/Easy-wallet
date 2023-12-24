@@ -1,7 +1,5 @@
 package com.nebiyu.Kelal.dto.response;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.TransactionModel;
 import lombok.AllArgsConstructor;

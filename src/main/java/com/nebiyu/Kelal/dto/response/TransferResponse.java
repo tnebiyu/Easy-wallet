@@ -1,6 +1,4 @@
 package com.nebiyu.Kelal.dto.response;
-
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

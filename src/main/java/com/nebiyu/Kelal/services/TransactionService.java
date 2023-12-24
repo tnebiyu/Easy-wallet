@@ -2,7 +2,7 @@ package com.nebiyu.Kelal.services;
 
 
 import com.nebiyu.Kelal.configuration.JWTService;
-//import com.nebiyu.Kelal.kafka.kafkaproducer.KafkaProducerService;
+import com.nebiyu.Kelal.kafka.kafkaproducer.KafkaProducerService;
 import com.nebiyu.Kelal.dto.request.TransferRequestWithPhone;
 import com.nebiyu.Kelal.dto.response.*;
 import com.nebiyu.Kelal.model.TransactionModel;
@@ -16,6 +16,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.transaction.Transactional;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ public class TransactionService {
     private UserRepository userRepository;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private KafkaProducerService kafkaProducer;
     @Autowired
     private SmsService smsService;
     @Autowired
@@ -145,7 +148,7 @@ transactionRepository.save(transaction);
                 userRepository.save(sender.get());
                 userRepository.save(receiver.get());
                 transactionRepository.save(transaction);
-               // kafkaProducer.sendTransactionMessage(transactionResponseSenderUserData);
+//                kafkaProducer.sendTransactionMessage(transactionResponseSenderUserData);
 
 
                 var data = TransactionResponseId.Data.builder().user_data(transactionResponseSenderUserData).build();
@@ -206,7 +209,7 @@ transactionRepository.save(transaction);
             smsService.sendNotify(request.getReceiverPhone(), " amount " + request.getAmount() +
                     " is transferred to your account" + " transaction id " + transaction.getId() +
                     " at the date of " + transaction.getTimestamp() + " your current balance is " + receiver.get().getBalance());
-            // kafkaProducer.sendTransactionMessage(transactionResponseSenderUserData);
+             kafkaProducer.sendTransactionMessage(request);
 
 
             var data = TransactionResponseViaPhone.Data.builder().user_data(userData).build();
