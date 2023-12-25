@@ -1,5 +1,5 @@
 
-# Wallet APP
+# Wallet APP(KELAL)
 
 **Easy Wallet APP(KELAL)** is developed using Spring Boot and MySQL,
 
