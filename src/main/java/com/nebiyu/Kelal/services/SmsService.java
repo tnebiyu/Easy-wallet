@@ -1,7 +1,7 @@
 package com.nebiyu.Kelal.services;
 import com.nebiyu.Kelal.dto.request.SmsRequest;
-import com.nebiyu.Kelal.dto.response.NotifyResponse;
-import com.nebiyu.Kelal.dto.response.OtpResponse;
+import com.nebiyu.Kelal.dao.response.NotifyResponse;
+import com.nebiyu.Kelal.dao.response.OtpResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

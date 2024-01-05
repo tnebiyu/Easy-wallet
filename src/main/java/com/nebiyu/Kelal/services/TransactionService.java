@@ -2,6 +2,7 @@ package com.nebiyu.Kelal.services;
 
 
 import com.nebiyu.Kelal.configuration.JWTService;
+import com.nebiyu.Kelal.dao.response.*;
 import com.nebiyu.Kelal.kafka.kafkaproducer.KafkaProducerService;
 import com.nebiyu.Kelal.dto.request.TransferRequestWithPhone;
 import com.nebiyu.Kelal.dto.response.*;
@@ -16,7 +17,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.transaction.Transactional;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

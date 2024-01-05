@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.dto.response;
+package com.nebiyu.Kelal.dao.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,8 +12,11 @@ import java.util.List;
 @Data
 
 @AllArgsConstructor
-public class RecentTransactionResponse {
+public class TransactionHistoryResponse {
     private Data data;
+
+
+
     private boolean error;
     private String error_msg;
 

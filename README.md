@@ -4,7 +4,7 @@
 **Easy Wallet APP(KELAL)** is developed using Spring Boot and MySQL,
 
 features:
-- **Authentication & Authorization:** JWT-based authentication and authorization mechanisms.
+- **Authentication & Authorization:** JWT-based authentication, authorization and refresh token mechanisms.
 - **Transaction Methods:** Transfer money using ID, email, or phone numbers.
 - **Integration & Notifications:** Seamlessly integrates with Kafka and provides SMS notifications using KMI SMS API for transactional and OTP notifications.
 - **User Management:** Features like OTP-based login, password recovery via SMS, super admin functionalities, user ban/unban, and admin creation.

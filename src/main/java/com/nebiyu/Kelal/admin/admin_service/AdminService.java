@@ -7,7 +7,7 @@ import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
 import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
 import com.nebiyu.Kelal.dto.request.RegisterRequest;
 import com.nebiyu.Kelal.dto.request.TopUpRequest;
-import com.nebiyu.Kelal.dto.response.Response;
+import com.nebiyu.Kelal.dao.response.Response;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

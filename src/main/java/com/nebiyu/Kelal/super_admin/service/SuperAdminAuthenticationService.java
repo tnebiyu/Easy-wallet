@@ -6,7 +6,7 @@ import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
 
-import com.nebiyu.Kelal.dto.response.Response;
+import com.nebiyu.Kelal.dao.response.Response;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

@@ -5,7 +5,7 @@ import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
 import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
 import com.nebiyu.Kelal.dto.request.RegisterRequest;
 import com.nebiyu.Kelal.dto.request.TopUpRequest;
-import com.nebiyu.Kelal.dto.response.Response;
+import com.nebiyu.Kelal.dao.response.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

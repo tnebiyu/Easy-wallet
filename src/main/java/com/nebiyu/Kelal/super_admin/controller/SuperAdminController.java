@@ -1,7 +1,7 @@
 package com.nebiyu.Kelal.super_admin.controller;
 
 import com.nebiyu.Kelal.dto.request.*;
-import com.nebiyu.Kelal.dto.response.Response;
+import com.nebiyu.Kelal.dao.response.Response;
 import com.nebiyu.Kelal.super_admin.service.SuperAdminAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

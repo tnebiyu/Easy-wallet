@@ -2,8 +2,8 @@ package com.nebiyu.Kelal.controllers;
 
 import com.nebiyu.Kelal.dto.request.OtpRequest;
 import com.nebiyu.Kelal.dto.request.OtpValidationRequest;
-import com.nebiyu.Kelal.dto.response.Response;
-import com.nebiyu.Kelal.dto.response.OtpResponse;
+import com.nebiyu.Kelal.dao.response.Response;
+import com.nebiyu.Kelal.dao.response.OtpResponse;
 import com.nebiyu.Kelal.services.SmsService;
 import com.nebiyu.Kelal.utils.otp.OtpData;
 import com.nebiyu.Kelal.utils.otp.OtpGenerator;

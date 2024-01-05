@@ -1,6 +1,6 @@
 package com.nebiyu.Kelal.controllers;
 import com.nebiyu.Kelal.dto.request.*;
-import com.nebiyu.Kelal.dto.response.Response;
+import com.nebiyu.Kelal.dao.response.Response;
 import com.nebiyu.Kelal.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +35,18 @@ public class UserController {
       else{
           return ResponseEntity.ok().body(response);
       }
+    }
+    @PostMapping("/refresh_token")
+    public ResponseEntity<Response> refreshToken(@RequestBody RefreshTokenRequest request) {
+        Response response = service.refreshToken(request);
+
+        if (response.isError()) {
+            return ResponseEntity.badRequest()
+                    .body(response);
+        } else {
+            return ResponseEntity.ok()
+                    .body(response);
+        }
     }
 
     @PostMapping("/change_user_password")

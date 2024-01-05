@@ -1,5 +1,5 @@
 package com.nebiyu.Kelal.controllers;
-import com.nebiyu.Kelal.dto.response.PingResponse;
+import com.nebiyu.Kelal.dao.response.PingResponse;
 import com.nebiyu.Kelal.services.PingService;
 import org.springframework.web.bind.annotation.RequestMapping;
 

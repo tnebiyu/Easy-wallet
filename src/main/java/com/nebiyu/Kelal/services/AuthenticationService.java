@@ -2,7 +2,7 @@ package com.nebiyu.Kelal.services;
 
 import com.nebiyu.Kelal.configuration.JWTService;
 import com.nebiyu.Kelal.dto.request.*;
-import com.nebiyu.Kelal.dto.response.Response;
+import com.nebiyu.Kelal.dao.response.Response;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
@@ -267,6 +267,26 @@ return Response.builder().error(true).error_msg(e.toString()).build();
         catch (Exception e){
             return Response.builder().error(true).error_msg("Authentication Failed" + e.getMessage()).build();
         }
+    }
+    public Response refreshToken(RefreshTokenRequest refreshTokenRequest){
+        try{
+            String userEmail = jwtService.extractUserName(refreshTokenRequest.getToken());
+            User user = userRepository.findByEmail(userEmail).orElseThrow();
+            if (jwtService.isTokenValid(refreshTokenRequest.getToken(), user)){
+                var jwt = jwtService.generateToken(user);
+             var refreshToken = Response.RefreshToken.builder().refreshToken(jwt).build();
+             var data = Response.Data.builder().refreshToken(refreshToken).build();
+             return Response.builder().data(data).error(false).error_msg("").build();
+            }
+            else {
+                return Response.builder().error(true).error_msg("token is invalid").build();
+            }
+        }
+        catch (Exception e){
+            return Response.builder().error(true).error_msg("Refresh token failed" + e.getMessage()).build();
+
+        }
+
     }
     public Response resetPassword(ResetPasswordRequest request) {
         try {

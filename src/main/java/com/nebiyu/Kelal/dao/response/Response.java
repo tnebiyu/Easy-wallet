@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.dto.response;
+package com.nebiyu.Kelal.dao.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.TransactionModel;
@@ -36,6 +36,7 @@ public class Response {
         private Response.ResetPassword resetPassword;
         private Response.AuthorizationResponse authorizationResponse;
         private Response.ChangePassword changePassword;
+        private Response.RefreshToken refreshToken;
     }
 
     @lombok.Data
@@ -131,6 +132,15 @@ public class Response {
         private String phoneNumber;
         private String password;
         private BigDecimal balance;
+
+
+    }
+    @lombok.Data
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class RefreshToken {
+        private String refreshToken;
+
 
 
     }
