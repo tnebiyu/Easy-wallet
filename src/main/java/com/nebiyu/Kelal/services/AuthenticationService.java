@@ -274,7 +274,7 @@ return Response.builder().error(true).error_msg(e.toString()).build();
             User user = userRepository.findByEmail(userEmail).orElseThrow();
             if (jwtService.isTokenValid(refreshTokenRequest.getToken(), user)){
                 var jwt = jwtService.generateToken(user);
-             var refreshToken = Response.RefreshToken.builder().refreshToken(jwt).build();
+             var refreshToken = Response.RefreshToken.builder().refreshToken(refreshTokenRequest.getToken()).token(jwt).build();
              var data = Response.Data.builder().refreshToken(refreshToken).build();
              return Response.builder().data(data).error(false).error_msg("").build();
             }

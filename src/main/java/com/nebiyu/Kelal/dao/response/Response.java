@@ -139,6 +139,7 @@ public class Response {
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class RefreshToken {
+        private String token;
         private String refreshToken;
 
 
