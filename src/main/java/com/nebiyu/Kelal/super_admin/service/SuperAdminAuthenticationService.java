@@ -145,6 +145,103 @@ public class SuperAdminAuthenticationService {
     }
 
   }
+  @Async
+  public Response registerWithPhoneNumber(RegisterWithPhoneRequest request) {
+    try {
+      String normalizePhoneNumber = normalizePhoneNumber(request.getPhoneNumber());
+      Optional<User> existingUser = userRepository.findByPhoneNumber(normalizePhoneNumber);
+      if (!isValidPhoneNumber(request.getPhoneNumber())){
+        return Response.builder().error(true)
+                .error_msg("Invalid phone number").build();
+      }
+
+      if (existingUser.isPresent()) {
+        return Response.builder()
+                .error(true)
+                .error_msg("super admin already registered")
+                .build();
+      }
+
+      String password = request.getPassword();
+      if (!isPasswordComplex(password)) {
+        return Response.builder()
+                .error(true)
+                .error_msg("invalid_password")
+                .build();
+      }
+
+      User user = User.builder()
+              .firstName(request.getFirstname())
+              .lastName(request.getLastname())
+              .phoneNumber(normalizePhoneNumber)
+              .password(passwordEncoder.encode(request.getPassword()))
+              .role(Role.SUPERADMIN)
+              .balance(BigDecimal.ZERO)
+              .build();
+      userRepository.save(user);
+      var responseBuilder = Response.builder().error(false)
+              .error_msg("");
+      var userData = Response.AuthorizationResponse.builder().firstName(request.getFirstname())
+              .lastName(request.getLastname())
+              .phoneNumber(request.getPhoneNumber())
+              .balance(BigDecimal.ZERO)
+              .build();
+
+      var data = Response.Data.builder()
+              .authorizationResponse(userData).build();
+      responseBuilder.data(data).build();
+
+
+      return Response.builder().data(data).error(false).error_msg("").build();
+    } catch (Exception e) {
+      return Response.builder()
+              .error(true)
+              .error_msg(e.getMessage())
+              .build();
+    }
+  }
+  public Response signInWithPhoneNumber(PhoneAuthRequest request){
+    try {
+      String normalizePhoneNumber = normalizePhoneNumber(request.getPhone());
+      Optional<User> userExist = userRepository.findByPhoneNumber(normalizePhoneNumber);
+
+      if (!isValidPhoneNumber(request.getPhone())){
+        return Response.builder().error(true)
+                .error_msg("Invalid phone number").build();
+      }
+
+
+
+      if (userExist.isEmpty()) {
+
+        return Response.builder().error(true)
+                .error_msg("super admin is not registered, please register").build();
+      }
+      User user = userExist.get();
+      if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+
+        return Response.builder().error(true).error_msg("password is incorrect").build();
+      }
+      authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+              request.getPhone(),
+              request.getPassword()));
+
+      var jwtToken = jwtService.generateToken(user);
+      var userData = Response.UserData.builder()
+              .user_id(user.getId())
+              .access_token(jwtToken)
+              .phoneNumber(user.getPhoneNumber())
+              .balance(user.getBalance())
+              .build();
+      var data = Response.Data.builder()
+              .user_data(userData).build();
+      return Response.builder().data(data).error_msg("").error(false).build();
+
+    }
+    catch (Exception e){
+      return Response.builder().error(true).error_msg("Authentication Failed" + e.getMessage()).build();
+    }
+  }
 
  @Async
   public Response createAdminAccount(SadminCreateAdminRequest request, String jwtToken) {
@@ -332,6 +429,29 @@ return Response.builder().error(true).error_msg(e.toString()).build();
     catch (Exception e) {
       return true;
     }
+  }
+  private boolean isValidPhoneNumber(String input) {
+
+    return input.matches("\\d{10}") || input.matches("\\d{12}");
+  }
+  public String normalizePhoneNumber(String phoneNumber) {
+    String normalizedNumber = phoneNumber.replaceAll("[^0-9]", "");
+
+    if (isValidPhoneNumber(normalizedNumber)) {
+      if (normalizedNumber.startsWith("09")) {
+        normalizedNumber = "251" + normalizedNumber.substring(1);
+      } else if (normalizedNumber.startsWith("9")) {
+        normalizedNumber = "251" + normalizedNumber;
+      } else if (normalizedNumber.startsWith("251")) {
+      } else {
+
+        throw new IllegalArgumentException("Unsupported phone number format");
+      }
+    } else {
+      throw new IllegalArgumentException("Invalid phone number");
+    }
+
+    return normalizedNumber;
   }
 
 }

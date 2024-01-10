@@ -77,6 +77,22 @@ public class SuperAdminController{
         }
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/signup_by_phone_number")
+    public ResponseEntity<Response> signupByPhoneNumber(@RequestBody RegisterWithPhoneRequest request){
+        Response response = superAdminService.registerWithPhoneNumber(request);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
+    }
+    @PostMapping("/signIn_by_phone_number")
+    public ResponseEntity<Response> signInByPhoneNumber(@RequestBody PhoneAuthRequest request){
+        Response response = superAdminService.signInWithPhoneNumber(request);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
+    }
 
 }
 

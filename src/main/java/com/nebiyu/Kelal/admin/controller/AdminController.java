@@ -53,6 +53,22 @@ public class AdminController{
                     .body(response);
         }
     }
+    @PostMapping("/signup_by_phone_number")
+    public ResponseEntity<Response> signupByPhoneNumber(@RequestBody RegisterWithPhoneRequest request){
+        Response response = adminService.registerWithPhoneNumber(request);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
+    }
+    @PostMapping("/signIn_by_phone_number")
+    public ResponseEntity<Response> signInByPhoneNumber(@RequestBody PhoneAuthRequest request){
+        Response response = adminService.signInWithPhoneNumber(request);
+        if (response.isError()){
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(response);
+    }
     @PostMapping("/top_up_user")
     public ResponseEntity<Response> topUpUser(@RequestBody TopUpRequest request, @RequestHeader("Authorization") String jwtToken){
         Response response = adminService.topUpUser(request, jwtToken);
