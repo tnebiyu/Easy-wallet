@@ -1,8 +1,7 @@
 package com.nebiyu.Kelal.services;
-
 import com.nebiyu.Kelal.configuration.JWTService;
-import com.nebiyu.Kelal.dto.request.*;
-import com.nebiyu.Kelal.dao.response.Response;
+import com.nebiyu.Kelal.dao.*;
+import com.nebiyu.Kelal.dto.Response;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;

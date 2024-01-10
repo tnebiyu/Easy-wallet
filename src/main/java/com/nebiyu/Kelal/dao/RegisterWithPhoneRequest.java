@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.dto.request;
+package com.nebiyu.Kelal.dao;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhoneAuthRequest {
-    private String phone;
+public class RegisterWithPhoneRequest {
+    private String firstname;
+    private String lastname;
+    private String phoneNumber;
     private String password;
 }

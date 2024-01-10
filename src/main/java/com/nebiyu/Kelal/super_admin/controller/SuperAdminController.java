@@ -1,7 +1,6 @@
 package com.nebiyu.Kelal.super_admin.controller;
-
-import com.nebiyu.Kelal.dto.request.*;
-import com.nebiyu.Kelal.dao.response.Response;
+import com.nebiyu.Kelal.dao.*;
+import com.nebiyu.Kelal.dto.Response;
 import com.nebiyu.Kelal.super_admin.service.SuperAdminAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +38,18 @@ public class SuperAdminController{
 
             return ResponseEntity.ok().body(response);
 
+    }
+    @PostMapping("/refresh_token")
+    public ResponseEntity<Response> refreshToken(@RequestBody RefreshTokenRequest request) {
+        Response response = superAdminService.refreshToken(request);
+
+        if (response.isError()) {
+            return ResponseEntity.badRequest()
+                    .body(response);
+        } else {
+            return ResponseEntity.ok()
+                    .body(response);
+        }
     }
     @PostMapping("/createAdmin")
         public ResponseEntity<Response> createAdmin(@RequestBody SadminCreateAdminRequest request, @RequestHeader("Authorization") String jwtToken){

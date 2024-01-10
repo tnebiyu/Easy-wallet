@@ -2,16 +2,15 @@ package com.nebiyu.Kelal.services;
 
 
 import com.nebiyu.Kelal.configuration.JWTService;
-import com.nebiyu.Kelal.dao.response.*;
+import com.nebiyu.Kelal.dto.*;
 import com.nebiyu.Kelal.kafka.kafkaproducer.KafkaProducerService;
-import com.nebiyu.Kelal.dto.request.TransferRequestWithPhone;
-import com.nebiyu.Kelal.dto.response.*;
+import com.nebiyu.Kelal.dao.TransferRequestWithPhone;
 import com.nebiyu.Kelal.model.TransactionModel;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.TransactionRepository;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.dto.request.TransferRequestWithEmail;
-import com.nebiyu.Kelal.dto.request.TransferRequestWithId;
+import com.nebiyu.Kelal.dao.TransferRequestWithEmail;
+import com.nebiyu.Kelal.dao.TransferRequestWithId;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

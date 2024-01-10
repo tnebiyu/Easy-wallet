@@ -1,10 +1,9 @@
 package com.nebiyu.Kelal.controllers;
-import com.nebiyu.Kelal.dao.response.*;
-import com.nebiyu.Kelal.dto.request.TransferRequestWithPhone;
-import com.nebiyu.Kelal.dto.response.*;
+import com.nebiyu.Kelal.dao.TransferRequestWithPhone;
+import com.nebiyu.Kelal.dto.*;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.dto.request.TransferRequestWithEmail;
-import com.nebiyu.Kelal.dto.request.TransferRequestWithId;
+import com.nebiyu.Kelal.dao.TransferRequestWithEmail;
+import com.nebiyu.Kelal.dao.TransferRequestWithId;
 import com.nebiyu.Kelal.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

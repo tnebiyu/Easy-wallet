@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.dao.response;
+package com.nebiyu.Kelal.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class NotifyResponse {
+public class OtpResponse {
     private boolean success;
     private String message;
     private int code;
-    private OtpResponse.Result result;
+    private Result result;
     private long timestamp;
 
     @Data

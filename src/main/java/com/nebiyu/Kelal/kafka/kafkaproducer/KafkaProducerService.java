@@ -1,5 +1,5 @@
 package com.nebiyu.Kelal.kafka.kafkaproducer;
-import com.nebiyu.Kelal.dto.request.TransferRequestWithPhone;
+import com.nebiyu.Kelal.dao.TransferRequestWithPhone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

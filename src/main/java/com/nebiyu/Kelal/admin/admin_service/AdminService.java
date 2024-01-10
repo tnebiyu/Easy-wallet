@@ -1,13 +1,10 @@
 package com.nebiyu.Kelal.admin.admin_service;
 import com.nebiyu.Kelal.configuration.JWTService;
+import com.nebiyu.Kelal.dao.*;
 import com.nebiyu.Kelal.model.Role;
 import com.nebiyu.Kelal.model.User;
 import com.nebiyu.Kelal.repositories.UserRepository;
-import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
-import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
-import com.nebiyu.Kelal.dto.request.RegisterRequest;
-import com.nebiyu.Kelal.dto.request.TopUpRequest;
-import com.nebiyu.Kelal.dao.response.Response;
+import com.nebiyu.Kelal.dto.Response;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -120,6 +117,26 @@ public Response changePassword(ChangePasswordRequest request, String jwtToken){
     }
 
 }
+    public Response refreshToken(RefreshTokenRequest refreshTokenRequest){
+        try{
+            String userEmail = jwtService.extractUserName(refreshTokenRequest.getToken());
+            User user = userRepository.findByEmail(userEmail).orElseThrow();
+            if (jwtService.isTokenValid(refreshTokenRequest.getToken(), user)){
+                var jwt = jwtService.generateToken(user);
+                var refreshToken = Response.RefreshToken.builder().refreshToken(refreshTokenRequest.getToken()).token(jwt).build();
+                var data = Response.Data.builder().refreshToken(refreshToken).build();
+                return Response.builder().data(data).error(false).error_msg("").build();
+            }
+            else {
+                return Response.builder().error(true).error_msg("token is invalid").build();
+            }
+        }
+        catch (Exception e){
+            return Response.builder().error(true).error_msg("Refresh token failed" + e.getMessage()).build();
+
+        }
+
+    }
     @Async
     public Response authenticateAdmin(AuthenticationRequest request) {
         try {
@@ -248,6 +265,7 @@ public Response changePassword(ChangePasswordRequest request, String jwtToken){
                 password.matches(".*\\d.*") &&
                 password.matches(".*[!@#$%^&*()-_=+\\[\\]{}|;:'\",.<>/?].*");
     }
+
 
 
 

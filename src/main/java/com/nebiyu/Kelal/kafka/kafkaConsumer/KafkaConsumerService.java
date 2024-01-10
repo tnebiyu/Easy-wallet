@@ -1,5 +1,5 @@
 package com.nebiyu.Kelal.kafka.kafkaConsumer;
-import com.nebiyu.Kelal.dto.request.TransferRequestWithPhone;
+import com.nebiyu.Kelal.dao.TransferRequestWithPhone;
 import com.nebiyu.Kelal.services.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;

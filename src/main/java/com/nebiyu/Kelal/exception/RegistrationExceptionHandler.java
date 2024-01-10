@@ -1,5 +1,5 @@
 package com.nebiyu.Kelal.exception;
-import com.nebiyu.Kelal.dao.response.Response;
+import com.nebiyu.Kelal.dto.Response;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

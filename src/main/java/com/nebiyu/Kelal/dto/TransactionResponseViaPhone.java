@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.dao.response;
+package com.nebiyu.Kelal.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

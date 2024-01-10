@@ -1,4 +1,4 @@
-package com.nebiyu.Kelal.dto.request;
+package com.nebiyu.Kelal.dao;
 
 import lombok.Builder;
 import lombok.Data;

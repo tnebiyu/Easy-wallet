@@ -1,11 +1,8 @@
 package com.nebiyu.Kelal.admin.controller;
 
 import com.nebiyu.Kelal.admin.admin_service.AdminService;
-import com.nebiyu.Kelal.dto.request.AuthenticationRequest;
-import com.nebiyu.Kelal.dto.request.ChangePasswordRequest;
-import com.nebiyu.Kelal.dto.request.RegisterRequest;
-import com.nebiyu.Kelal.dto.request.TopUpRequest;
-import com.nebiyu.Kelal.dao.response.Response;
+import com.nebiyu.Kelal.dao.*;
+import com.nebiyu.Kelal.dto.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +39,18 @@ public class AdminController{
         }
         else{
             return ResponseEntity.ok().body(response);
+        }
+    }
+    @PostMapping("/refresh_token")
+    public ResponseEntity<Response> refreshToken(@RequestBody RefreshTokenRequest request) {
+        Response response = adminService.refreshToken(request);
+
+        if (response.isError()) {
+            return ResponseEntity.badRequest()
+                    .body(response);
+        } else {
+            return ResponseEntity.ok()
+                    .body(response);
         }
     }
     @PostMapping("/top_up_user")

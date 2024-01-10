@@ -1,6 +1,6 @@
 package com.nebiyu.Kelal.controllers;
-import com.nebiyu.Kelal.dto.request.*;
-import com.nebiyu.Kelal.dao.response.Response;
+import com.nebiyu.Kelal.dao.*;
+import com.nebiyu.Kelal.dto.Response;
 import com.nebiyu.Kelal.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
